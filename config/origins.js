@@ -1,4 +1,4 @@
-const allowedOrigins = 'https://www.cpduels.com';
+const allowedOrigins = 'http://localhost:3000/';
 
 const corsOptions = {
     origin: allowedOrigins,
