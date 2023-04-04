@@ -2,7 +2,7 @@ import express from "express";
 import pool from "../server.js";
 const inventoryRouter = express.Router();
 
-inventoryRouter.get("/inventory/:inventory_id", async (req, res) => {
+inventoryRouter.get("/:inventory_id", async (req, res) => {
   const { inventory_id } = req.params;
 
   try {
@@ -21,7 +21,7 @@ inventoryRouter.get("/inventory/:inventory_id", async (req, res) => {
   }
 });
 
-inventoryRouter.get("/inventory/name/:name", async (req, res) => {
+inventoryRouter.get("/name/:name", async (req, res) => {
   const { name } = req.params;
 
   try {
@@ -40,7 +40,7 @@ inventoryRouter.get("/inventory/name/:name", async (req, res) => {
   }
 });
 
-inventoryRouter.get("/inventory", async (req, res) => {
+inventoryRouter.get("/", async (req, res) => {
   try {
     const { rows } = await pool.query("SELECT * FROM inventory;");
 
