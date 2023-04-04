@@ -1,12 +1,16 @@
 import express from "express";
-import { corsOptions, allowedOrigins } from "./config/origins.js";
+import cors from "cors";
 import orderRouter from "./routes/orderRouter.js";
 import menuRouter from "./routes/menuRouter.js";
 import postgres from "pg";
-const { Pool } = postgres;
-const app = express();
 import dotenv from "dotenv";
 dotenv.config();
+
+const { Pool } = postgres;
+const app = express();
+// using cors here
+app.use(cors());
+
 
 const pool = new Pool({
 	host: process.env.PSQL_HOST,
@@ -25,17 +29,17 @@ process.on("SIGINT", function () {
 
 app.set("view engine", "ejs");
 
-app.get("/user", (req, res) => {
-	let teammembers = [];
-	pool.query("SELECT * FROM teammembers;").then((query_res) => {
-		for (let i = 0; i < query_res.rowCount; i++) {
-			teammembers.push(query_res.rows[i]);
-		}
-		const data = { teammembers: teammembers };
-		console.log(teammembers);
-		res.render("user", data);
-	});
-});
+// app.get("/user", (req, res) => {
+// 	let teammembers = [];
+// 	pool.query("SELECT * FROM teammembers;").then((query_res) => {
+// 		for (let i = 0; i < query_res.rowCount; i++) {
+// 			teammembers.push(query_res.rows[i]);
+// 		}
+// 		const data = { teammembers: teammembers };
+// 		console.log(teammembers);
+// 		res.render("user", data);
+// 	});
+// });
 
 const PORT = process.env.PORT || 8080;
 app.use(express.json());
