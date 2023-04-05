@@ -8,10 +8,7 @@ const getInventoryItemsByMenuId = async (menu_id) => {
 			"SELECT * FROM inventory_to_menu WHERE menu_id = $1;",
 			[menu_id]
 		);
-		return rows.map((row) => ({
-			inventory_id: row.inventory_id,
-			quantity: row.quantity,
-		}));
+		return rows;
 	} catch (err) {
 		console.error(err);
 		return null;
@@ -21,22 +18,7 @@ const getInventoryItemsByMenuId = async (menu_id) => {
 menuRouter.get("/", async (req, res) => {
 	try {
 		const { rows } = await pool.query("SELECT * FROM menu;");
-		const menuItems = [];
-
-		for (const row of rows) {
-			const inventory_items = await getInventoryItemsByMenuId(
-				row.menu_id
-			);
-			menuItems.push({
-				menu_id: row.menu_id,
-				name: row.name,
-				price: row.price,
-				type: row.type,
-				inventory_items,
-			});
-		}
-
-		res.send(menuItems);
+		res.send(rows);
 	} catch (err) {
 		res.status(500).json({ message: err.message });
 	}
@@ -49,6 +31,7 @@ menuRouter.get("/:menu_id", async (req, res) => {
 			"SELECT * FROM menu WHERE menu_id = $1;",
 			[menu_id]
 		);
+		console.log(rows);
 
 		if (rows.length === 0) {
 			res.status(404).json({ message: "Menu item not found" });
@@ -105,22 +88,8 @@ menuRouter.get("/type/:type", async (req, res) => {
 			"SELECT * FROM menu WHERE type = $1;",
 			[type]
 		);
-		const menuItems = [];
 
-		for (const row of rows) {
-			const inventory_items = await getInventoryItemsByMenuId(
-				row.menu_id
-			);
-			menuItems.push({
-				menu_id: row.menu_id,
-				name: row.name,
-				price: row.price,
-				type: row.type,
-				inventory_items,
-			});
-		}
-
-		res.send(menuItems);
+		res.send(rows);
 	} catch (err) {
 		res.status(500).json({ message: err.message });
 	}
