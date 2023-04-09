@@ -6,12 +6,24 @@ import inventoryRouter from "./routes/inventoryRouter.js";
 import restaurantRouter from "./routes/restaurantRouter.js";
 import postgres from "pg";
 import dotenv from "dotenv";
+import Data from "./api/Data.js";
+import corsOptions from "./config/origins.js";
+const Database = new Data();
+
 dotenv.config();
 
 const { Pool } = postgres;
 const app = express();
 // using cors here
-app.use(cors());
+// app.use(cors(corsOptions));
+// Error handling middleware
+app.use((err, req, res, next) => {
+	if (err.message === "Not allowed by CORS") {
+		res.status(403).send({ error: "Not allowed by CORS" });
+	} else {
+		next(err);
+	}
+});
 
 const pool = new Pool({
 	host: process.env.PSQL_HOST,
@@ -30,18 +42,6 @@ process.on("SIGINT", function () {
 
 app.set("view engine", "ejs");
 
-// app.get("/user", (req, res) => {
-// 	let teammembers = [];
-// 	pool.query("SELECT * FROM teammembers;").then((query_res) => {
-// 		for (let i = 0; i < query_res.rowCount; i++) {
-// 			teammembers.push(query_res.rows[i]);
-// 		}
-// 		const data = { teammembers: teammembers };
-// 		console.log(teammembers);
-// 		res.render("user", data);
-// 	});
-// });
-
 const PORT = process.env.PORT || 8080;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -51,7 +51,7 @@ app.use("/inventory", inventoryRouter);
 app.use("/restaurant", restaurantRouter);
 
 app.listen(PORT, () => {
-	console.log(`Example app listening at http://localhost:${PORT}`);
+	console.log(`Server is started on port ${PORT}`);
 });
 
-export default pool;
+export { pool, Database };

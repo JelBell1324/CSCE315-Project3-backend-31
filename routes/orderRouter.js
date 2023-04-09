@@ -1,5 +1,5 @@
 import express from "express";
-import pool from "../server.js";
+import { Database } from "../server.js";
 const orderRouter = express.Router();
 
 orderRouter.post("/makeorder", async (req, res) => {
@@ -52,8 +52,7 @@ orderRouter.post("/makeorder", async (req, res) => {
 // GET all orders
 orderRouter.get("/", async (req, res) => {
 	try {
-		const { rows } = await pool.query("SELECT * FROM orders;");
-		res.send(rows);
+		res.send(await Database.getAllOrders());
 	} catch (err) {
 		res.status(500).json({ message: err.message });
 	}
@@ -62,10 +61,7 @@ orderRouter.get("/", async (req, res) => {
 // GET recent orders
 orderRouter.get("/recent", async (req, res) => {
 	try {
-		const { rows } = await pool.query(
-			"SELECT * FROM orders ORDER BY date DESC LIMIT 50;"
-		);
-		res.send(rows);
+		res.send(await Database.getRecentOrders());
 	} catch (err) {
 		res.status(500).json({ message: err.message });
 	}
@@ -75,11 +71,7 @@ orderRouter.get("/recent", async (req, res) => {
 orderRouter.get("/:order_id", async (req, res) => {
 	const { order_id } = req.params;
 	try {
-		const { rows } = await pool.query(
-			"SELECT * FROM orders WHERE order_id = $1;",
-			[order_id]
-		);
-		res.send(rows[0]);
+		res.send(await Database.getOrder(order_id));
 	} catch (err) {
 		res.status(500).json({ message: err.message });
 	}
@@ -89,11 +81,7 @@ orderRouter.get("/:order_id", async (req, res) => {
 orderRouter.get("/customer/:customer_id", async (req, res) => {
 	const { customer_id } = req.params;
 	try {
-		const { rows } = await pool.query(
-			"SELECT * FROM orders WHERE customer_id = $1;",
-			[customer_id]
-		);
-		res.send(rows);
+		res.send(await Database.getOrdersByCustomerId(customer_id));
 	} catch (err) {
 		res.status(500).json({ message: err.message });
 	}
@@ -103,11 +91,7 @@ orderRouter.get("/customer/:customer_id", async (req, res) => {
 orderRouter.get("/date/:date", async (req, res) => {
 	const { date } = req.params;
 	try {
-		const { rows } = await pool.query(
-			"SELECT * FROM orders WHERE date = $1;",
-			[date]
-		);
-		res.send(rows);
+		res.send(await Database.getOrdersByDate(date));
 	} catch (err) {
 		res.status(500).json({ message: err.message });
 	}
@@ -117,11 +101,7 @@ orderRouter.get("/date/:date", async (req, res) => {
 orderRouter.get("/since/:date", async (req, res) => {
 	const { date } = req.params;
 	try {
-		const { rows } = await pool.query(
-			"SELECT * FROM orders WHERE date >= $1;",
-			[date]
-		);
-		res.send(rows);
+		res.send(await Database.getOrdersSinceDate(date));
 	} catch (err) {
 		res.status(500).json({ message: err.message });
 	}

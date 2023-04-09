@@ -1,8 +1,15 @@
-const allowedOrigins = 'http://localhost:3000/';
+const allowedOrigins = "http://localhost:3000/";
 
 const corsOptions = {
-    origin: allowedOrigins,
-    optionsSuccessStatus: 200,
+	origin: function (origin, callback) {
+		if (allowedOrigins.indexOf(origin) !== -1) {
+			callback(null, true);
+		} else {
+			// Only send the error message, not the entire error object
+			callback(new Error("Not allowed by CORS"), false);
+		}
+	},
+	optionsSuccessStatus: 200,
 };
 
-export { corsOptions, allowedOrigins };
+export default corsOptions;
