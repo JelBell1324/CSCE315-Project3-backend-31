@@ -1,6 +1,5 @@
 import express from "express";
 import { Database } from "../server.js";
-import Data from "../api/Data.js";
 const menuRouter = express.Router();
 
 menuRouter.get("/", async (req, res) => {

@@ -248,6 +248,181 @@ class Data {
 			return -1;
 		}
 	}
+
+	/**
+	 * Removes order and make all necessary changes to database and
+	 * - removes all corresponding menu_to_order entries
+	 * - removes order entry into orders table
+	 *
+	 * @param order_id a int for order_id to search by
+	 * @return a boolean value for success (true) or failure (false)
+	 */
+	async removeOrder(order_id) {
+		const sqlStatement1 = "DELETE FROM menu_to_order WHERE order_id = $1;";
+
+		try {
+			await pool.query(sqlStatement1, [order_id]);
+		} catch (e) {
+			console.error(
+				"Above error happened while deleting menu_to_order entry (called from removeOrder)."
+			);
+			console.error(`${e.constructor.name}: ${e.message}`);
+			return false; // ERROR
+		}
+
+		const sqlStatement2 = "DELETE FROM orders WHERE order_id = $1;";
+		try {
+			await pool.query(sqlStatement2, [order_id]);
+		} catch (e) {
+			console.error("Above error happened while deleting order entry.");
+			console.error(`${e.constructor.name}: ${e.message}`);
+			return false; // ERROR
+		}
+
+		return true;
+	}
+
+	/**
+	 * Adds a menu item and make all necessary changes to database and
+	 * - adds new menu entry into menu table
+	 * - adds all inventory_to_menu entries
+	 *
+	 * @param name            a name for the new menu item
+	 * @param price           a double for price of the menu item
+	 * @param type            a string for type of the menu item
+	 * @param inventory_items an Array of pairs {inventoryId: Integer, quantity: Integer}
+	 *                        for inventory_items in the menu item
+	 * @return a boolean value for success (true) or failure (false)
+	 */
+	async addMenuItem(name, price, type, inventory_items) {
+		// Make Menu Entry
+		const sqlStatement1 =
+			"INSERT INTO menu (name, price, type) VALUES ($1, $2, $3) RETURNING menu_id;";
+
+		let menu_id = -1;
+		try {
+			const { rows } = await pool.query(sqlStatement1, [
+				name,
+				price,
+				type,
+			]);
+			if (rows.length > 0) {
+				menu_id = rows[0].menu_id;
+				console.log("new menuItem with menuid: " + menu_id);
+			}
+		} catch (e) {
+			console.error("Above error happened while creating order entry.");
+			console.error(`${e.constructor.name}: ${e.message}`);
+			return false;
+		}
+
+		// Make inventory_to_menu Entry(ies)
+		for (let i = 0; i < inventory_items.length; i++) {
+			const sqlStatement2 =
+				"INSERT INTO inventory_to_menu (inventory_id, menu_id, quantity) VALUES ($1, $2, $3);";
+			try {
+				await pool.query(sqlStatement2, [
+					inventory_items[i].inventoryId,
+					menu_id,
+					inventory_items[i].quantity,
+				]);
+			} catch (e) {
+				console.error(
+					"Above error happened while creating inventory_to_menu entry."
+				);
+				console.error(`${e.constructor.name}: ${e.message}`);
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Removes a menu item and make all necessary changes to database and
+	 * - removes all corresponding inventory_to_menu entries
+	 * - removes all corresponding menu_to_order entries
+	 * - removes menu entry from menu table
+	 *
+	 * @param menu_id a menu_id to search by
+	 * @return a boolean value for success (true) or failure (false)
+	 */
+	async removeMenuItem(menu_id) {
+		const sqlStatement1 =
+			"DELETE FROM inventory_to_menu WHERE menu_id = $1;";
+
+		try {
+			await pool.query(sqlStatement1, [menu_id]);
+		} catch (e) {
+			console.error(
+				"Above error happened while deleting inventory_to_menu entry (called from removeMenuItem)."
+			);
+			console.error(`${e.constructor.name}: ${e.message}`);
+			return false; // ERROR
+		}
+
+		const sqlStatement2 = "DELETE FROM menu_to_order WHERE menu_id = $1;";
+		try {
+			await pool.query(sqlStatement2, [menu_id]);
+		} catch (e) {
+			console.error(
+				"Above error happened while deleting menu_to_order entry (called from removeMenuItem)."
+			);
+			console.error(`${e.constructor.name}: ${e.message}`);
+			return false; // ERROR
+		}
+
+		const sqlStatement3 = "DELETE FROM menu WHERE menu_id = $1;";
+		try {
+			await pool.query(sqlStatement3, [menu_id]);
+		} catch (e) {
+			console.error("Above error happened while deleting menu entry.");
+			console.error(`${e.constructor.name}: ${e.message}`);
+			return false; // ERROR
+		}
+
+		return true;
+	}
+
+	/**
+	 * Updates a menu item and sets its price.
+	 *
+	 * @param menu_id  a menu_id to search by
+	 * @param newPrice a new price to set
+	 * @return a boolean value for success (true) or failure (false)
+	 */
+	async updateMenuPriceById(menu_id, newPrice) {
+		const query = "UPDATE menu SET price = $1 WHERE menu_id = $2;";
+
+		try {
+			await pool.query(query, [newPrice, menu_id]);
+			return true; // SUCCESS
+		} catch (e) {
+			console.error(`${e.constructor.name}: ${e.message}`);
+		}
+		return false; // ERROR
+	}
+
+	/**
+	 * Updates a menu item and sets its price.
+	 *
+	 * @param name     a name to search by
+	 * @param newPrice a new price to set
+	 * @return a boolean value for success (true) or failure (false)
+	 */
+	async updateMenuPriceByName(name, newPrice) {
+		const query = "UPDATE menu SET price = $1 WHERE name = $2;";
+
+		try {
+			await pool.query(query, [newPrice, name]);
+			return true; // SUCCESS
+		} catch (e) {
+			console.error(`${e.constructor.name}: ${e.message}`);
+		}
+		return false; // ERROR
+	}
+
+    
 }
 
 export default Data;
