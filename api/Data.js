@@ -209,6 +209,45 @@ class Data {
 		}
 		return menuItems;
 	}
+
+	async makeOrder(cost_total, timestamp, customer_id, staff_id, menu_items) {
+		try {
+			const { rows } = await pool.query(
+				"INSERT INTO orders (cost_total, date, customer_id, staff_id) VALUES ($1, $2, $3, $4) RETURNING order_id;",
+				[cost_total, timestamp, customer_id, staff_id]
+			);
+			const order_id = rows[0].order_id;
+
+			for (const item of menu_items) {
+				await pool.query(
+					"INSERT INTO menu_to_order (menu_id, order_id, quantity) VALUES ($1, $2, $3);",
+					[item.first, order_id, item.second]
+				);
+			}
+
+			for (const item of menu_items) {
+				const { rows: inventoryItems } = await pool.query(
+					"SELECT * FROM inventory_to_menu WHERE menu_id = $1;",
+					[item.first]
+				);
+
+				for (const inventoryItem of inventoryItems) {
+					await pool.query(
+						"UPDATE inventory SET quantity = quantity - $1 WHERE inventory_id = $2;",
+						[
+							inventoryItem.quantity * item.second,
+							inventoryItem.inventory_id,
+						]
+					);
+				}
+			}
+
+			return order_id;
+		} catch (error) {
+			console.error("Error while creating order:", error);
+			return -1;
+		}
+	}
 }
 
 export default Data;

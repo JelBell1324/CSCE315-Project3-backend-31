@@ -8,12 +8,14 @@ import postgres from "pg";
 import dotenv from "dotenv";
 import Data from "./api/Data.js";
 import corsOptions from "./config/origins.js";
+import helmet from "helmet";
 const Database = new Data();
 
 dotenv.config();
 
 const { Pool } = postgres;
 const app = express();
+app.use(helmet());
 // using cors here
 // app.use(cors(corsOptions));
 // Error handling middleware
