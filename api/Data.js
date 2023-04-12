@@ -96,7 +96,7 @@ class Data {
 		const { rows } = await pool.query("SELECT * FROM menu;");
 		const menuItems = [];
 		for (const row of rows) {
-			const inventory_items = await getInventoryItemsByMenuId(
+			const inventory_items = await this.getInventoryItemsByMenuId(
 				row.menu_id
 			);
 			const item = {
@@ -118,7 +118,7 @@ class Data {
 		);
 		const menuItems = [];
 		for (const row of rows) {
-			const inventory_items = await getInventoryItemsByMenuId(
+			const inventory_items = await this.getInventoryItemsByMenuId(
 				row.menu_id
 			);
 			const item = {
@@ -178,7 +178,7 @@ class Data {
 		);
 		const inventoryItems = [];
 		for (const row of rows) {
-			const inventory_item = await getInventory(row.inventory_id);
+			const inventory_item = await this.getInventory(row.inventory_id);
 			inventoryItems.push(inventory_item);
 		}
 		return inventoryItems;
