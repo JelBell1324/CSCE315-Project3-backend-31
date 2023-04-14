@@ -15,9 +15,9 @@ dotenv.config();
 
 const { Pool } = postgres;
 const app = express();
-app.use(helmet());
+// app.use(helmet());
 // using cors here
-// app.use(cors(corsOptions));
+app.use(cors(corsOptions));
 // Error handling middleware
 app.use((err, req, res, next) => {
 	if (err.message === "Not allowed by CORS") {
