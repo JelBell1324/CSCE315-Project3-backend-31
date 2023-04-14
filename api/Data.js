@@ -94,21 +94,21 @@ class Data {
 
 	async getAllMenuItems() {
 		const { rows } = await pool.query("SELECT * FROM menu;");
-		const menuItems = [];
-		for (const row of rows) {
-			const inventory_items = await this.getInventoryItemsByMenuId(
-				row.menu_id
-			);
-			const item = {
-				menu_id: row.menu_id,
-				name: row.name,
-				price: row.price,
-				type: row.type,
-				inventory_items,
-			};
-			menuItems.push(item);
-		}
-		return menuItems;
+		// const menuItems = [];
+		// for (const row of rows) {
+		// 	const inventory_items = await this.getInventoryItemsByMenuId(
+		// 		row.menu_id
+		// 	);
+		// 	const item = {
+		// 		menu_id: row.menu_id,
+		// 		name: row.name,
+		// 		price: row.price,
+		// 		type: row.type,
+		// 		inventory_items,
+		// 	};
+		// 	menuItems.push(item);
+		// }
+		return rows;
 	}
 
 	async getMenuByType(foodType) {
@@ -422,7 +422,228 @@ class Data {
 		return false; // ERROR
 	}
 
-    
+	/**
+	 * Adds a menu item to an order.
+	 *
+	 * @param order_id an order id to search by
+	 * @param menu_id  a menu_id to add
+	 * @param quantity a quantity for the menu item added
+	 * @return a Promise that resolves to a boolean value for success (true) or failure (false)
+	 */
+	async addMenuItemToOrder(order_id, menu_id, quantity) {
+		// Get order
+		const original_order = await getOrder(order_id);
+		if (original_order === null) {
+			console.log("addMenuItemToOrder error: order not found");
+			return false;
+		}
+		let original_quantity = 0;
+
+		for (let i = 0; i < original_order.menu_items.length; i++) {
+			const menu_item = original_order.menu_items[i];
+			if (menu_item.first === menu_id) {
+				original_quantity = menu_item.second;
+				break;
+			}
+		}
+		const new_quantity = original_quantity + quantity;
+
+		let sqlStatement;
+		// If menu item was present
+		if (original_quantity > 0) {
+			sqlStatement =
+				`UPDATE menu_to_order SET quantity = ${new_quantity} WHERE ` +
+				`(menu_id = ${menu_id} AND order_id = ${order_id});`;
+		} else {
+			sqlStatement =
+				`INSERT INTO menu_to_order (menu_id, order_id, quantity) VALUES ` +
+				`(${menu_id}, ${order_id}, ${new_quantity});`;
+		}
+
+		try {
+			await pool.query(sqlStatement);
+			console.log(`new (updated) menu_to_order for order: ${order_id}`);
+		} catch (e) {
+			console.error(e);
+			console.log(
+				"Above error happened while updating menu_to_order entry."
+			);
+			console.error(`${e.constructor.name}: ${e.message}`);
+			return false;
+		}
+
+		return true;
+	}
+	/**
+	 * Removes a menu item from an order.
+	 *
+	 * @param order_id an order_id to search by
+	 * @param menu_id a menu_id to search by
+	 * @return a Promise that resolves to a boolean value for success (true) or failure (false)
+	 */
+	async removeMenuItemFromOrder(order_id, menu_id) {
+		// Get order
+		const original_order = await getOrder(order_id);
+		if (original_order === null) {
+			console.log("removeMenuItemFromOrder error: order not found");
+			return false;
+		}
+		let present = false;
+
+		for (let i = 0; i < original_order.menu_items.length; i++) {
+			const menu_item = original_order.menu_items[i];
+			if (menu_item.first === menu_id) {
+				present = true;
+				break;
+			}
+		}
+		if (!present) {
+			console.log("Error deleting item not present in order.");
+		}
+
+		const sqlStatement =
+			`DELETE FROM menu_to_order WHERE ` +
+			`(menu_id = ${menu_id} AND order_id = ${order_id});`;
+
+		try {
+			await pool.query(sqlStatement);
+			console.log(`deleted menu_to_order for order: ${order_id}`);
+		} catch (e) {
+			console.error(e);
+			console.log(
+				"Above error happened while deleting menu_to_order entry."
+			);
+			console.error(`${e.constructor.name}: ${e.message}`);
+			return false;
+		}
+
+		return true;
+	}
+	/**
+	 * Updates the price of an order to a new cost from the user
+	 *
+	 * @param order_id id of the order that is being updated
+	 * @param newCostTotal the new price of the order to be set
+	 * @return a Promise that resolves to a boolean value for success (true) or failure (false)
+	 */
+	async updateOrderPriceById(order_id, newCostTotal) {
+		const sqlStatement = `UPDATE orders SET cost_total = ${newCostTotal} WHERE order_id = ${order_id};`;
+		try {
+			await pool.query(sqlStatement);
+			return true; // SUCCESS
+		} catch (e) {
+			console.error(e);
+			console.error(`${e.constructor.name}: ${e.message}`);
+		}
+		return false; // ERROR
+	}
+	/**
+	 * Updates the revenue of a restaurant by the restaurant id and summing order totals
+	 *
+	 * @param restaurant_id id of the restaurant that is being updated
+	 * @return a Promise that resolves to a boolean value for success (true) or failure (false)
+	 */
+	async updateRevenue(restaurant_id) {
+		const sqlStatement1 =
+			"SELECT SUM(cost_total) AS total_revenue FROM orders;";
+		let revenue = -1;
+		try {
+			const res = await pool.query(sqlStatement1);
+			revenue = res.rows[0].total_revenue;
+		} catch (e) {
+			console.error(e);
+			console.error(`${e.constructor.name}: ${e.message}`);
+			return false;
+		}
+
+		const sqlStatement2 = `UPDATE restaurant SET revenue = ${revenue} WHERE restaurant_id = ${restaurant_id};`;
+		try {
+			await pool.query(sqlStatement2);
+		} catch (e) {
+			console.error(e);
+			console.error(`${e.constructor.name}: ${e.message}`);
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Updates the quantity of an inventory item by the ID
+	 *
+	 * @param inventory_id id of the inventory item being updated
+	 * @param quantity amount of Inventory being restocked/deleted
+	 * @return a Promise that resolves to a boolean value for success (true) or failure (false)
+	 */
+	async addInventoryQuantityById(inventory_id, quantity) {
+		const sqlStatement = `UPDATE inventory SET quantity = (quantity + ${quantity}) WHERE inventory_id = ${inventory_id};`;
+		try {
+			await pool.query(sqlStatement);
+		} catch (e) {
+			console.error(e);
+			console.error(`${e.constructor.name}: ${e.message}`);
+			return false;
+		}
+
+		return true;
+	}
+	/**
+	 * Updates the quantity of an inventory item by name
+	 *
+	 * @param name name of the Inventory item to be restocked
+	 * @param quantity amount of Inventory being restocked/deleted
+	 * @return a Promise that resolves to a boolean value for success (true) or failure (false)
+	 */
+	async addInventoryQuantityByName(name, quantity) {
+		const sqlStatement = `UPDATE inventory SET quantity = (quantity + ${quantity}) WHERE name = '${name}';`;
+		try {
+			await pool.query(sqlStatement);
+		} catch (e) {
+			console.error(e);
+			console.error(`${e.constructor.name}: ${e.message}`);
+			return false;
+		}
+
+		return true;
+	}
+	/**
+	 * Updates and decreases the quantity of an inventory item by ID
+	 *
+	 * @param inventory_id id of the Inventory item to be updated
+	 * @param quantity amount of Inventory being restocked/deleted
+	 * @return a Promise that resolves to a boolean value for success (true) or failure (false)
+	 */
+	async deleteInventoryQuantityById(inventory_id, quantity) {
+		const sqlStatement = `UPDATE inventory SET quantity = (quantity - ${quantity}) WHERE inventory_id = ${inventory_id};`;
+		try {
+			await pool.query(sqlStatement);
+		} catch (e) {
+			console.error(e);
+			console.error(`${e.constructor.name}: ${e.message}`);
+			return false;
+		}
+
+		return true;
+	}
+	/**
+	 * Creates a new Inventory entry in the Database
+	 *
+	 * @param name name of the Inventory item to be created
+	 * @param quantity amount of Inventory being created
+	 * @return a Promise that resolves to a boolean value for success (true) or failure (false)
+	 */
+	async addNewInventoryItem(name, quantity) {
+		const sqlStatement = `INSERT INTO inventory (name, quantity) VALUES ('${name}', ${quantity});`;
+		try {
+			await pool.query(sqlStatement);
+		} catch (e) {
+			console.error(e);
+			console.error(`${e.constructor.name}: ${e.message}`);
+			return false;
+		}
+
+		return true;
+	}
 }
 
 export default Data;
