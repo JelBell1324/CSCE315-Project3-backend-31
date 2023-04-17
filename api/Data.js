@@ -645,26 +645,54 @@ class Data {
 		return true;
 	}
 
+	/*
+	***************************************************
+	PHASE 4 QUERIES - PHASE 4 QUERIES - PHASE 4 QUERIES
+	***************************************************
+	*/
+
+	// Need to figure out date -> string conversion
+
 	async getSalesReport(sDate, eDate) {
 		const sqlStatement = `
-		  SELECT menu_id, SUM(quantity) AS total_qty 
-		  FROM menu_to_order 
-		  WHERE order_id IN (
-			SELECT order_id FROM orders 
-			WHERE date >= $1 AND date <= $2
-		  )
-		  GROUP BY menu_id;`;
+			SELECT menu_id, SUM(quantity) AS total_qty 
+			FROM menu_to_order 
+			WHERE order_id IN (
+				SELECT order_id FROM orders 
+				WHERE date >= '${sDate}' AND date <= '${eDate}'
+			)
+			GROUP BY menu_id;`;
 	  
-		const { rows } = await pool.query(sqlStatement, [sDate, eDate]);
+		const { rows } = await pool.query(sqlStatement);
 	  
 		const menuItemsSales = {};
 		rows.forEach((row) => {
-		  const itemName = String(row.menu_id);
-		  const qty = parseInt(row.total_qty);
-		  menuItemsSales[itemName] = qty;
+			const itemName = String(row.menu_id);
+			const qty = parseInt(row.total_qty);
+			menuItemsSales[itemName] = qty;
 		});
-	  
 		return menuItemsSales;
+	}
+
+	async getRestockReport(minimumQty) {
+		const sqlStatement = `SELECT * FROM inventory WHERE quantity <= ${minimumQty};`;
+		const refillItems = [];
+		try {
+		  console.log("Starting restock report generation...");
+		  const res = await pool.query(sqlStatement);
+		  for (const row of res.rows) {
+			const item = new Inventory(
+			  row.inventory_id,
+			  row.name,
+			  row.quantity
+			);
+			refillItems.push(item);
+		  }
+		  console.log("Report generated successfully.");
+		} catch (err) {
+		  console.error(err);
+		}
+		return refillItems;
 	  }
 	  
 
