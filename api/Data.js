@@ -644,6 +644,30 @@ class Data {
 
 		return true;
 	}
+
+	async getSalesReport(sDate, eDate) {
+		const sqlStatement = `
+		  SELECT menu_id, SUM(quantity) AS total_qty 
+		  FROM menu_to_order 
+		  WHERE order_id IN (
+			SELECT order_id FROM orders 
+			WHERE date >= $1 AND date <= $2
+		  )
+		  GROUP BY menu_id;`;
+	  
+		const { rows } = await pool.query(sqlStatement, [sDate, eDate]);
+	  
+		const menuItemsSales = {};
+		rows.forEach((row) => {
+		  const itemName = String(row.menu_id);
+		  const qty = parseInt(row.total_qty);
+		  menuItemsSales[itemName] = qty;
+		});
+	  
+		return menuItemsSales;
+	  }
+	  
+
 }
 
 export default Data;
