@@ -651,7 +651,6 @@ class Data {
 	***************************************************
 	*/
 
-	// Need to figure out date -> string conversion
 
 	async getSalesReport(sDate, eDate) {
 		const sqlStatement = `
@@ -659,7 +658,7 @@ class Data {
 			FROM menu_to_order 
 			WHERE order_id IN (
 				SELECT order_id FROM orders 
-				WHERE date >= '${sDate}' AND date <= '${eDate}'
+				WHERE date >= '${sDate.toString()}' AND date <= '${eDate.toString}'
 			)
 			GROUP BY menu_id;`;
 	  
@@ -696,6 +695,7 @@ class Data {
 	  }
 	  
 
+	  // TODO: Rest of phase 4 functions, XZ etc. 
 }
 
 export default Data;
