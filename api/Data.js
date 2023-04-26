@@ -191,8 +191,8 @@ class Data {
 		);
 		const menuItems = [];
 		for (const row of rows) {
-			const menu_item = await this.getMenu(row.menu_id);
-			menuItems.push({ quantity: row.quantity, menu_item });
+			const menuItem = await this.getMenu(row.menu_id);
+			menuItems.push({ quantity: row.quantity, menuItem });
 		}
 		return menuItems;
 	}
