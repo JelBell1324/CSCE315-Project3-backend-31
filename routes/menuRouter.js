@@ -11,7 +11,7 @@ menuRouter.get("/", async (req, res) => {
 });
 
 menuRouter.get("/:menu_id", async (req, res) => {
-	const menu_id = req.body.menu_id;
+	const { menu_id } = req.params;
 	try {
 		res.send(await Database.getMenu(menu_id));
 	} catch (err) {
@@ -29,7 +29,7 @@ menuRouter.get("/order/:order_id", async (req, res) => {
 });
 
 menuRouter.get("/name/:name", async (req, res) => {
-	const name = req.body.name;
+	const { name } = req.params;
 	try {
 		res.send(await Database.getMenuByName(name));
 	} catch (err) {
@@ -38,7 +38,7 @@ menuRouter.get("/name/:name", async (req, res) => {
 });
 
 menuRouter.get("/type/:type", async (req, res) => {
-	const type = req.body.type;
+	const { type } = req.params;
 	try {
 		res.send(await Database.getMenuByType(type));
 	} catch (err) {

@@ -22,6 +22,9 @@ orderRouter.post("/makeorder", async (req, res) => {
 	}
 });
 
+// Remove order
+// orderRouter.delete("/delete/:order_id");
+
 // GET all orders
 orderRouter.get("/", async (req, res) => {
 	try {
@@ -42,7 +45,7 @@ orderRouter.get("/recent", async (req, res) => {
 
 // GET order by order_id
 orderRouter.get("/:order_id", async (req, res) => {
-	const order_id = req.body.order_id;
+	const { order_id } = req.params;
 	try {
 		res.send(await Database.getOrder(order_id));
 	} catch (err) {
@@ -52,7 +55,7 @@ orderRouter.get("/:order_id", async (req, res) => {
 
 // GET orders by customer_id
 orderRouter.get("/customer/:customer_id", async (req, res) => {
-	const customer_id = req.body.customer_id;
+	const { customer_id } = req.params;
 	try {
 		res.send(await Database.getOrdersByCustomerId(customer_id));
 	} catch (err) {
@@ -62,7 +65,7 @@ orderRouter.get("/customer/:customer_id", async (req, res) => {
 
 // GET orders by date
 orderRouter.get("/date/:date", async (req, res) => {
-	const date = req.body.date;
+	const { date } = req.params;
 	try {
 		res.send(await Database.getOrdersByDate(date));
 	} catch (err) {
@@ -72,7 +75,7 @@ orderRouter.get("/date/:date", async (req, res) => {
 
 // GET orders since date
 orderRouter.get("/since/:date", async (req, res) => {
-	const date = req.body.date;
+	const { date } = req.params;
 	try {
 		res.send(await Database.getOrdersSinceDate(date));
 	} catch (err) {
