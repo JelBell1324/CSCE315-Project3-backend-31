@@ -171,19 +171,6 @@ class Data {
 		return menuItems;
 	}
 
-	async getMenuItemsByOrderId(order_id) {
-		const { rows } = await pool.query(
-			"SELECT * FROM menu_to_order WHERE order_id = $1;",
-			[order_id]
-		);
-		const menuItems = [];
-		for (const row of rows) {
-			const menuItem = await this.getMenu(row.menu_id);
-			menuItems.push({ menuItem, quantity: row.quantity });
-		}
-		return menuItems;
-	}
-
 	async getOrdersByMenuId(menu_id) {
 		const { rows } = await pool.query(
 			"SELECT * FROM menu_to_order WHERE menu_id = $1;",
@@ -204,8 +191,8 @@ class Data {
 		);
 		const menuItems = [];
 		for (const row of rows) {
-			const menu_item = await getMenu(row.menu_id);
-			menuItems.push(menu_item);
+			const menu_item = await this.getMenu(row.menu_id);
+			menuItems.push({ quantity: row.quantity, menu_item });
 		}
 		return menuItems;
 	}
