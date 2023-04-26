@@ -664,37 +664,21 @@ class Data {
 			GROUP BY menu_id;`;
 
 		const { rows } = await pool.query(sqlStatement);
-		// console.log(rows);
-
-		// const menuItemsSales = {};
-		// rows.forEach((row) => {
-		// 	console.log(row);
-		// 	const itemName = row.menu_id;
-		// 	const qty = row.total_qty;
-		// 	menuItemsSales[itemName] = qty;
-		// });
 		return rows;
 	}
 
 	async getRestockReport(minimumQty) {
-		const sqlStatement = `SELECT * FROM inventory WHERE quantity <= ${minimumQty};`;
+		const sqlStatement = `SELECT * FROM inventory WHERE quantity <= 5000;`;
 		const refillItems = [];
 		try {
 			console.log("Starting restock report generation...");
-			const res = await pool.query(sqlStatement);
-			for (const row of res.rows) {
-				const item = new Inventory(
-					row.inventory_id,
-					row.name,
-					row.quantity
-				);
-				refillItems.push(item);
-			}
+			const { rows } = await pool.query(sqlStatement);
 			console.log("Report generated successfully.");
+			return rows;
 		} catch (err) {
 			console.error(err);
 		}
-		return refillItems;
+		
 	}
 
 	// TODO: Rest of phase 4 functions, XZ etc.
