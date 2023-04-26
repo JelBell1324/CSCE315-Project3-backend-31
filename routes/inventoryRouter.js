@@ -11,7 +11,7 @@ inventoryRouter.get("/", async (req, res) => {
 });
 
 inventoryRouter.get("/:inventory_id", async (req, res) => {
-	const { inventory_id } = req.params;
+	const inventory_id = req.body.inventory_id;
 	try {
 		res.send(await Database.getInventory(inventory_id));
 	} catch (err) {
@@ -20,7 +20,7 @@ inventoryRouter.get("/:inventory_id", async (req, res) => {
 });
 
 inventoryRouter.get("/name/:name", async (req, res) => {
-	const { name } = req.params;
+	const name = req.body.name;
 	try {
 		res.send(await Database.getInventoryByName(name));
 	} catch (err) {
