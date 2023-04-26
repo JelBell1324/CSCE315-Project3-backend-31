@@ -3,11 +3,53 @@ import { pool } from "../server.js";
 import bcrypt from "bcrypt";
 const authRouter = express.Router();
 
+import { OAuth2Client } from "google-auth-library";
+
+const CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+const client = new OAuth2Client(CLIENT_ID);
+
+authRouter.post("/google-login", async (req, res) => {
+	try {
+		const credential = req.body.credential;
+		const ticket = await client.verifyIdToken({
+			idToken: credential,
+			audience: CLIENT_ID,
+		});
+		const payload = ticket.getPayload();
+
+		// Use payload information to find or create a user in your database
+		// and return the user information as you do in your regular login route
+		// Find or create a user with the Google email
+		const googleEmail = payload.email;
+		let user = await pool.query("SELECT * FROM staff WHERE email = $1", [
+			googleEmail,
+		]);
+
+		if (user.rowCount === 0) {
+			// Create a new user with Google user information
+			user = await pool.query(
+				"INSERT INTO staff (restaurant_id, is_manager, name, username, email) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+				[1, false, payload.name, payload.name, googleEmail] // You may want to adjust these values based on your application requirements
+			);
+		}
+
+		res.json({ message: "Logged in successfully.", user: user.rows[0] });
+	} catch (err) {
+		res.status(500).json({ message: err.message });
+	}
+});
+
 // Login route
 authRouter.post("/login", async (req, res) => {
 	try {
 		const username = req.body.username;
 		const password = req.body.password;
+		// Check if any of the required fields are missing
+		if (username == null || password == null) {
+			return res
+				.status(400)
+				.json({ message: "All fields are required." });
+		}
 		const user = await pool.query(
 			"SELECT * FROM staff WHERE username = $1",
 			[username]
