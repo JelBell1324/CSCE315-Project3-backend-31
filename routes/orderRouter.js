@@ -5,7 +5,8 @@ const orderRouter = express.Router();
 orderRouter.post("/makeorder", async (req, res) => {
 	try {
 		const { cost_total, timestamp, customer_id, staff_id, menu_items } =
-			req;
+			req.query;
+		console.log(cost_total);
 		await Database.makeOrder(
 			cost_total,
 			timestamp,

@@ -218,6 +218,8 @@ class Data {
 			);
 			const order_id = rows[0].order_id;
 
+			console.log(menu_items);
+
 			for (const item of menu_items) {
 				await pool.query(
 					"INSERT INTO menu_to_order (menu_id, order_id, quantity) VALUES ($1, $2, $3);",
