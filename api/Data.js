@@ -678,10 +678,159 @@ class Data {
 		} catch (err) {
 			console.error(err);
 		}
-		
 	}
 
 	// TODO: Rest of phase 4 functions, XZ etc.
+
+	/**
+	 * Gets total sales for that day
+	 *
+	 * @param restaurant_id id of restaurant
+	 * @return double representing the total sales for today
+	 */
+	async getTotalSalesForToday(restaurant_id) {
+		let totalSales = 0;
+
+		let sql =
+			"SELECT SUM(o.cost_total) " +
+			"FROM orders o " +
+			"JOIN staff s ON o.staff_id = s.staff_id " +
+			"WHERE s.restaurant_id = " +
+			restaurant_id +
+			" " +
+			"AND o.date >= DATE_TRUNC('day', CURRENT_TIMESTAMP) " +
+			"AND o.date < DATE_TRUNC('day', CURRENT_TIMESTAMP) + INTERVAL '1 day';";
+
+		try {
+			const { rows } = await pool.query(sql);
+			if (rows[0].sum) {
+				totalSales = rows[0].sum;
+			}
+		} catch (e) {
+			console.error(e.name + ": " + e.message);
+		}
+		return totalSales;
+	}
+
+	/**
+	 * Gets total sales since last Z report
+	 *
+	 * @param restaurant_id id of restaurant
+	 * @return double representing total sales
+	 */
+	async getTotalSalesSinceLastZReport(restaurant_id) {
+		let totalSales = 0;
+
+		let sqlGetTotalSales =
+			"SELECT SUM(o.cost_total) " +
+			"FROM orders o " +
+			"JOIN staff s ON o.staff_id = s.staff_id " +
+			"WHERE (o.date > (SELECT MAX(z.report_date) FROM z_reports z WHERE z.restaurant_id = " +
+			restaurant_id +
+			" ) AND o.date < CURRENT_TIMESTAMP " +
+			"AND s.restaurant_id = " +
+			restaurant_id +
+			");";
+
+		try {
+			let totalSalesSinceLastZReport = (
+				await pool.query(sqlGetTotalSales)
+			).rows;
+			if (totalSalesSinceLastZReport[0].sum) {
+				totalSales = totalSalesSinceLastZReport[0].sum;
+			}
+		} catch (e) {
+			console.error(e.name + ": " + e.message);
+		}
+		return totalSales;
+	}
+
+	async getXReport(restaurant_id) {
+		let report;
+
+		const sqlCheckZReports = `SELECT COUNT(*) FROM z_reports WHERE restaurant_id = ${restaurant_id};`;
+		const sqlGetLatestZReport = `SELECT MAX(z.report_date) FROM z_reports z WHERE z.restaurant_id = ${restaurant_id};`;
+
+		let latestZReportDate = new Date(-1);
+
+		try {
+			let resCheckZReports = (await pool.query(sqlCheckZReports)).rows;
+			const zReportsCount = resCheckZReports[0].count;
+
+			if (zReportsCount === 0) {
+				throw new Error(
+					`No Z reports exist for restaurant ${restaurant_id} returned 0`
+				);
+			}
+
+			let resGetLatestZReportDate = (
+				await pool.query(sqlGetLatestZReport)
+			).rows;
+			if (resGetLatestZReportDate[0]) {
+				latestZReportDate = new Date(resGetLatestZReportDate[0].max);
+			} else {
+				throw new Error(
+					`No Z reports exist for restaurant ${restaurant_id}`
+				);
+			}
+
+			report = {
+				report_date: latestZReportDate,
+				total_sales: await this.getTotalSalesSinceLastZReport(
+					restaurant_id
+				),
+				restaurant_id: restaurant_id,
+				type: "sinceLastZReport",
+			};
+		} catch (e) {
+			console.error(e.name + ": " + e.message);
+			report = {
+				report_date: latestZReportDate,
+				total_sales: await this.getTotalSalesForToday(restaurant_id),
+				restaurant_id: restaurant_id,
+				type: "salesToday",
+			};
+		}
+		console.log("X Report - Total Sales: " + report.total_sales);
+		return report;
+	}
+
+	async getZReport(restaurant_id) {
+		const totalSales = await this.getTotalSalesForToday(restaurant_id);
+		let report_id = -1;
+		let report_date = new Date(-1);
+		let report;
+
+		console.log("Z Report - Total Sales: " + totalSales);
+
+		const sql = `INSERT INTO z_reports (report_date, total_sales, restaurant_id) VALUES (CURRENT_TIMESTAMP, ${totalSales}, ${restaurant_id}) RETURNING report_id, report_date;`;
+
+		try {
+			const reportRes = (await pool.query(sql)).rows;
+			if (reportRes[0]) {
+				report_id = reportRes[0].report_id;
+				report_date = new Date(reportRes[0].report_date);
+			}
+			console.log("Z Report saved successfully");
+
+			report = {
+				report_id: report_id,
+				report_date: report_date,
+				total_sales: totalSales,
+				restaurant_id: restaurant_id,
+			};
+		} catch (e) {
+			console.error(e.name + ": " + e.message);
+			report = {
+				report_id: restaurant_id,
+				report_date: report_date,
+				total_sales: -1,
+				restaurant_id: restaurant_id,
+			};
+		}
+
+		return report;
+	}
 }
 
 export default Data;

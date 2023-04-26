@@ -26,4 +26,19 @@ restaurantRouter.get("/salesreport", async (req, res) => {
 	}
 });
 
+restaurantRouter.get("/xreport", async (req, res) => {
+	try {
+		res.send(await Database.getXReport(1));
+	} catch (err) {
+		res.status(500).json({ message: err.message });
+	}
+});
+
+restaurantRouter.get("/zreport", async (req, res) => {
+	try {
+		res.send(await Database.getZReport(1));
+	} catch (err) {
+		res.status(500).json({ message: err.message });
+	}
+});
 export default restaurantRouter;
