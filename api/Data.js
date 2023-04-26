@@ -218,6 +218,8 @@ class Data {
 			);
 			const order_id = rows[0].order_id;
 
+			console.log(menu_items);
+
 			for (const item of menu_items) {
 				await pool.query(
 					"INSERT INTO menu_to_order (menu_id, order_id, quantity) VALUES ($1, $2, $3);",
@@ -644,6 +646,42 @@ class Data {
 
 		return true;
 	}
+
+	/*
+	***************************************************
+	PHASE 4 QUERIES - PHASE 4 QUERIES - PHASE 4 QUERIES
+	***************************************************
+	*/
+
+	async getSalesReport(sDate, eDate) {
+		const sqlStatement = `
+			SELECT menu_id, SUM(quantity) AS total_qty 
+			FROM menu_to_order 
+			WHERE order_id IN (
+				SELECT order_id FROM orders 
+				WHERE date >= '${sDate}' AND date <= '${eDate}'
+			)
+			GROUP BY menu_id;`;
+
+		const { rows } = await pool.query(sqlStatement);
+		return rows;
+	}
+
+	async getRestockReport(minimumQty) {
+		const sqlStatement = `SELECT * FROM inventory WHERE quantity <= 5000;`;
+		const refillItems = [];
+		try {
+			console.log("Starting restock report generation...");
+			const { rows } = await pool.query(sqlStatement);
+			console.log("Report generated successfully.");
+			return rows;
+		} catch (err) {
+			console.error(err);
+		}
+		
+	}
+
+	// TODO: Rest of phase 4 functions, XZ etc.
 }
 
 export default Data;

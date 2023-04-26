@@ -4,6 +4,7 @@ import orderRouter from "./routes/orderRouter.js";
 import menuRouter from "./routes/menuRouter.js";
 import inventoryRouter from "./routes/inventoryRouter.js";
 import restaurantRouter from "./routes/restaurantRouter.js";
+import authRouter from "./routes/authRouter.js";
 import postgres from "pg";
 import dotenv from "dotenv";
 import Data from "./api/Data.js";
@@ -51,6 +52,7 @@ app.use("/orders", orderRouter);
 app.use("/menu", menuRouter);
 app.use("/inventory", inventoryRouter);
 app.use("/restaurant", restaurantRouter);
+app.use("/auth", authRouter);
 
 app.listen(PORT, () => {
 	console.log(`Server is started on port ${PORT}`);
