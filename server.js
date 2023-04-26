@@ -4,7 +4,7 @@ import orderRouter from "./routes/orderRouter.js";
 import menuRouter from "./routes/menuRouter.js";
 import inventoryRouter from "./routes/inventoryRouter.js";
 import restaurantRouter from "./routes/restaurantRouter.js";
-import authRouter from "./routes/auth.js";
+import authRouter from "./routes/authRouter.js";
 import postgres from "pg";
 import dotenv from "dotenv";
 import Data from "./api/Data.js";

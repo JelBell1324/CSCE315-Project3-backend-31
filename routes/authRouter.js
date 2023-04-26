@@ -39,13 +39,19 @@ authRouter.post("/register", async (req, res) => {
 	try {
 		// console.log(req.body);
 		const restaurant_id = req.body.restaurant_id;
-		const is_manager = req.bodyis_manager;
+		const is_manager = req.body.is_manager;
 		const name = req.body.name;
 		const username = req.body.username;
 		const password = req.body.password;
 
 		// Check if any of the required fields are missing
-		if (restaurant_id && is_manager && name && username && password) {
+		if (
+			restaurant_id == null ||
+			is_manager == null ||
+			name == null ||
+			username == null ||
+			password == null
+		) {
 			return res
 				.status(400)
 				.json({ message: "All fields are required." });
