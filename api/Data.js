@@ -171,17 +171,17 @@ class Data {
 		return menuItems;
 	}
 
-	async getInventoryItemsByMenuId(menu_id) {
+	async getMenuItemsByOrderId(order_id) {
 		const { rows } = await pool.query(
-			"SELECT * FROM inventory_to_menu WHERE menu_id = $1;",
-			[menu_id]
+			"SELECT * FROM menu_to_order WHERE order_id = $1;",
+			[order_id]
 		);
-		const inventoryItems = [];
+		const menuItems = [];
 		for (const row of rows) {
-			const inventory_item = await this.getInventory(row.inventory_id);
-			inventoryItems.push(inventory_item);
+			const menuItem = await this.getMenu(row.menu_id);
+			menuItems.push({ menuItem, quantity: row.quantity });
 		}
-		return inventoryItems;
+		return menuItems;
 	}
 
 	async getOrdersByMenuId(menu_id) {

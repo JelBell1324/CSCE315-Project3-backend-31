@@ -19,10 +19,19 @@ menuRouter.get("/:menu_id", async (req, res) => {
 	}
 });
 
+menuRouter.get("/order/:order_id", async (req, res) => {
+	const { order_id } = req.params;
+	try {
+		res.send(await Database.getMenuItemsByOrderId(order_id));
+	} catch (err) {
+		res.status(500).json({ message: err.message });
+	}
+});
+
 menuRouter.get("/name/:name", async (req, res) => {
 	const { name } = req.params;
 	try {
-		res.send(await Database.getMenuByName());
+		res.send(await Database.getMenuByName(name));
 	} catch (err) {
 		res.status(500).json({ message: err.message });
 	}
