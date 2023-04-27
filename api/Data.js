@@ -272,6 +272,33 @@ class Data {
 	}
 
 	/**
+	 * Parses a string of inventory items and their quantities and returns an array
+	 * of objects representing each item and its quantity.
+	 *
+	 * @param {string} inventoryItemsString - The string containing the inventory items and their quantities
+	 * @return {Array} - An array of objects representing each inventory item and its quantity
+	 */
+	async parseInventoryItems(inventoryItemsString) {
+		let inventoryItems = [];
+
+		let items = inventoryItemsString.split("|");
+		for (let item of items) {
+			let parts = item.trim().split(",");
+			let name = parts[0].trim();
+			let quantity = parseInt(parts[1].trim());
+
+			let inventoryId = (await this.getInventoryByName(name))
+				.inventory_id;
+			inventoryItems.push({
+				inventoryId: inventoryId,
+				quantity: quantity,
+			});
+		}
+
+		return inventoryItems;
+	}
+
+	/**
 	 * Adds a menu item and make all necessary changes to database and
 	 * - adds new menu entry into menu table
 	 * - adds all inventory_to_menu entries
@@ -305,15 +332,17 @@ class Data {
 			return false;
 		}
 
+		let inventory = await this.parseInventoryItems(inventory_items);
+
 		// Make inventory_to_menu Entry(ies)
-		for (let i = 0; i < inventory_items.length; i++) {
+		for (let i = 0; i < inventory.length; i++) {
 			const sqlStatement2 =
 				"INSERT INTO inventory_to_menu (inventory_id, menu_id, quantity) VALUES ($1, $2, $3);";
 			try {
 				await pool.query(sqlStatement2, [
-					inventory_items[i].inventoryId,
+					inventory[i].inventoryId,
 					menu_id,
-					inventory_items[i].quantity,
+					inventory[i].quantity,
 				]);
 			} catch (e) {
 				console.error(
