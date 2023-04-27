@@ -280,13 +280,8 @@ class Data {
 	 */
 	async parseInventoryItems(inventoryItemsString) {
 		let inventoryItems = itemIngredients.split("\n").map((line) => {
-<<<<<<< HEAD
 			const [ingredientName, quantity] = line.split(" | ");
 			return [ingredientName.trim(), quantity.trim()];
-=======
-		  const [inventoryItems, quantity] = line.split(" | ");
-		  return [inventoryItems.trim(), quantity.trim()];
->>>>>>> f2ae7cbaa4c0a37cc055685249b5cfbc40e4a204
 		});
 		return inventoryItems;
 	}
