@@ -672,8 +672,8 @@ class Data {
 	}
 
 	async getRestockReport(minimumQty) {
-		const sqlStatement = `SELECT * FROM inventory WHERE quantity <= 5000;`;
-		const refillItems = [];
+		const sqlStatement = `SELECT * FROM inventory WHERE quantity <= ${minimumQty};`;
+		console.log(minimumQty);
 		try {
 			console.log("Starting restock report generation...");
 			const { rows } = await pool.query(sqlStatement);
