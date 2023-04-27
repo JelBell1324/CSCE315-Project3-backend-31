@@ -281,9 +281,9 @@ class Data {
 	async parseInventoryItems(inventoryItemsString) {
 		let inventoryItems = [];
 
-		let items = inventoryItemsString.split("|");
+		let items = inventoryItemsString.split("\n");
 		for (let item of items) {
-			let parts = item.trim().split(",");
+			let parts = item.trim().split("|");
 			let name = parts[0].trim();
 			let quantity = parseInt(parts[1].trim());
 
