@@ -279,22 +279,10 @@ class Data {
 	 * @return {Array} - An array of objects representing each inventory item and its quantity
 	 */
 	async parseInventoryItems(inventoryItemsString) {
-		let inventoryItems = [];
-
-		let items = inventoryItemsString.split("|");
-		for (let item of items) {
-			let parts = item.trim().split(",");
-			let name = parts[0].trim();
-			let quantity = parseInt(parts[1].trim());
-
-			let inventoryId = (await this.getInventoryByName(name))
-				.inventory_id;
-			inventoryItems.push({
-				inventoryId: inventoryId,
-				quantity: quantity,
-			});
-		}
-
+		let inventoryItems = itemIngredients.split("\n").map((line) => {
+		  const [inventoryItems, quantity] = line.split(" | ");
+		  return [inventoryItems.trim(), quantity.trim()];
+		});
 		return inventoryItems;
 	}
 
