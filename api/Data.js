@@ -280,8 +280,13 @@ class Data {
 	 */
 	async parseInventoryItems(inventoryItemsString) {
 		let inventoryItems = itemIngredients.split("\n").map((line) => {
+<<<<<<< HEAD
 			const [ingredientName, quantity] = line.split(" | ");
 			return [ingredientName.trim(), quantity.trim()];
+=======
+		  const [inventoryItems, quantity] = line.split(" | ");
+		  return [inventoryItems.trim(), quantity.trim()];
+>>>>>>> f2ae7cbaa4c0a37cc055685249b5cfbc40e4a204
 		});
 		return inventoryItems;
 	}
@@ -672,8 +677,8 @@ class Data {
 	}
 
 	async getRestockReport(minimumQty) {
-		const sqlStatement = `SELECT * FROM inventory WHERE quantity <= 5000;`;
-		const refillItems = [];
+		const sqlStatement = `SELECT * FROM inventory WHERE quantity <= ${minimumQty};`;
+		console.log(minimumQty);
 		try {
 			console.log("Starting restock report generation...");
 			const { rows } = await pool.query(sqlStatement);
