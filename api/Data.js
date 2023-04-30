@@ -578,11 +578,12 @@ class Data {
 	 * Updates the quantity of an inventory item by the ID
 	 *
 	 * @param inventory_id id of the inventory item being updated
-	 * @param quantity amount of Inventory being restocked/deleted
+	 * @param quantity new stock of the Inventory
 	 * @return a Promise that resolves to a boolean value for success (true) or failure (false)
 	 */
-	async addInventoryQuantityById(inventory_id, quantity) {
-		const sqlStatement = `UPDATE inventory SET quantity = (quantity + ${quantity}) WHERE inventory_id = ${inventory_id};`;
+	async updateInventoryQuantityById(inventory_id, quantity) {
+		const sqlStatement = `UPDATE inventory SET quantity = (${quantity}) WHERE inventory_id = ${inventory_id};`;
+		console.log("here");
 		try {
 			await pool.query(sqlStatement);
 		} catch (e) {
@@ -597,11 +598,11 @@ class Data {
 	 * Updates the quantity of an inventory item by name
 	 *
 	 * @param name name of the Inventory item to be restocked
-	 * @param quantity amount of Inventory being restocked/deleted
+	 * @param quantity new stock of the Inventory
 	 * @return a Promise that resolves to a boolean value for success (true) or failure (false)
 	 */
-	async addInventoryQuantityByName(name, quantity) {
-		const sqlStatement = `UPDATE inventory SET quantity = (quantity + ${quantity}) WHERE name = '${name}';`;
+	async updateInventoryQuantityByName(name, quantity) {
+		const sqlStatement = `UPDATE inventory SET quantity = (${quantity}) WHERE name = '${name}';`;
 		try {
 			await pool.query(sqlStatement);
 		} catch (e) {
@@ -682,6 +683,46 @@ class Data {
 		} catch (err) {
 			console.error(err);
 		}
+	}
+
+	/**
+	 * Gets inventory items with below 10% sales since timestamp
+	 *
+	 * @param timestamp Date object for query
+	 * @return Array of objects { inventory: Inventory, percentage: Number }
+	 *         for the percentage of each inventory item sold
+	 */
+	async getExcessReport(timestamp) {
+		const inventorySalesPercentages = this.getInventorySalesSinceTimestamp(timestamp);
+		const sold = new Map();
+		const out = [];
+
+		if (!inventorySalesPercentages) {
+			return null;
+		}
+
+		for (let i = 0; i < inventorySalesPercentages.length; i++) {
+			const inventory = inventorySalesPercentages[i].inventory;
+			const percentage = inventorySalesPercentages[i].percentage;
+
+			sold.set(inventory.inventory_id, true);
+
+			if (percentage < 10) {
+				out.push({ inventory, percentage });
+			}
+		}
+
+		const inventoryItems = this.getAllInventoryItems();
+
+		for (let i = 0; i < inventoryItems.length; i++) {
+			const inventory = inventoryItems[i];
+
+			if (!sold.has(inventory.inventory_id)) {
+				out.push({ inventory, percentage: 0 });
+			}
+		}
+
+		return out;
 	}
 
 	// TODO: Rest of phase 4 functions, XZ etc.
