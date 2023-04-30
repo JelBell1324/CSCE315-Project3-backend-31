@@ -23,6 +23,7 @@ restaurantRouter.get("/excessreport", async (req, res) => {
 	const timestamp = req.query.timestamp;
 	try {
 		res.send(await Database.getExcessReport(timestamp));
+		console.log("Excess Report generated successfully");
 	} catch (err) {
 		res.status(500).json({ message: err.message });
 	}

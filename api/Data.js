@@ -685,46 +685,73 @@ class Data {
 		}
 	}
 
-	/**
-	 * Gets inventory items with below 10% sales since timestamp
-	 *
-	 * @param timestamp Date object for query
-	 * @return Array of objects { inventory: Inventory, percentage: Number }
-	 *         for the percentage of each inventory item sold
-	 */
-	async getExcessReport(timestamp) {
-		const inventorySalesPercentages = this.getInventorySalesSinceTimestamp(timestamp);
-		const sold = new Map();
-		const out = [];
+	async getInventorySalesSinceTimestamp(timestamp) {
+		if (!(timestamp instanceof Date)) {
+			timestamp = new Date(timestamp);
+		}
 
-		if (!inventorySalesPercentages) {
+		const query = `
+		  SELECT i.inventory_id, i.name, i.quantity,
+			COALESCE(SUM(im.quantity * mo.quantity), 0) AS total_sold
+		  FROM inventory i
+		  LEFT JOIN inventory_to_menu im ON i.inventory_id = im.inventory_id
+		  LEFT JOIN menu m ON m.menu_id = im.menu_id
+		  LEFT JOIN menu_to_order mo ON m.menu_id = mo.menu_id
+		  LEFT JOIN orders o ON o.order_id = mo.order_id
+		  WHERE o.date >= $1
+		  GROUP BY i.inventory_id, i.name, i.quantity
+		`;
+
+		try {
+			const res = await pool.query(query, [timestamp]);
+			const inventorySalesPercentages = res.rows.map((row) => {
+				const totalQuantitySold = parseInt(row.total_sold, 10);
+				const percentageSold =
+					(totalQuantitySold / (totalQuantitySold + row.quantity)) *
+					100;
+				return {
+					inventory_id: row.inventory_id,
+					name: row.name,
+					quantity: row.quantity,
+					percentage_sold: percentageSold,
+				};
+			});
+
+			return inventorySalesPercentages;
+		} catch (e) {
+			console.error(e);
+			return null;
+		}
+	}
+
+	async getExcessReport(timestamp) {
+		const inventorySalesPercentages =
+			await this.getInventorySalesSinceTimestamp(timestamp);
+		let sold = {};
+		let out = [];
+
+		if (inventorySalesPercentages === null) {
 			return null;
 		}
 
-		for (let i = 0; i < inventorySalesPercentages.length; i++) {
-			const inventory = inventorySalesPercentages[i].inventory;
-			const percentage = inventorySalesPercentages[i].percentage;
-
-			sold.set(inventory.inventory_id, true);
-
-			if (percentage < 10) {
-				out.push({ inventory, percentage });
+		for (const percentage of inventorySalesPercentages) {
+			const key = percentage.inventory_id;
+			sold[key] = true;
+			if (percentage.percentage_sold < 10) {
+				out.push(percentage);
 			}
 		}
 
-		const inventoryItems = this.getAllInventoryItems();
+		const inventoryItems = await this.getAllInventoryItems();
 
-		for (let i = 0; i < inventoryItems.length; i++) {
-			const inventory = inventoryItems[i];
-
-			if (!sold.has(inventory.inventory_id)) {
-				out.push({ inventory, percentage: 0 });
+		for (const item of inventoryItems) {
+			if (!sold.hasOwnProperty(item.inventory_id)) {
+				out.push({ inventory: item, percentage_sold: 0.0 });
 			}
 		}
 
 		return out;
 	}
-
 	// TODO: Rest of phase 4 functions, XZ etc.
 
 	/**
