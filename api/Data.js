@@ -93,21 +93,7 @@ class Data {
 	}
 
 	async getAllMenuItems() {
-		const { rows } = await pool.query("SELECT * FROM menu;");
-		// const menuItems = [];
-		// for (const row of rows) {
-		// 	const inventory_items = await this.getInventoryItemsByMenuId(
-		// 		row.menu_id
-		// 	);
-		// 	const item = {
-		// 		menu_id: row.menu_id,
-		// 		name: row.name,
-		// 		price: row.price,
-		// 		type: row.type,
-		// 		inventory_items,
-		// 	};
-		// 	menuItems.push(item);
-		// }
+		const { rows } = await pool.query("SELECT * FROM menu ORDER BY menu_id;");
 		return rows;
 	}
 
@@ -667,7 +653,8 @@ class Data {
 				SELECT order_id FROM orders 
 				WHERE date >= '${sDate}' AND date <= '${eDate}'
 			)
-			GROUP BY m.menu_id, m.name;`;
+			GROUP BY m.menu_id, m.name
+			ORDER BY total_qty DESC;`;
 		try {
 			console.log("Starting sales report generation...");
 			const { rows } = await pool.query(sqlStatement);
@@ -679,12 +666,10 @@ class Data {
 	}
 
 	async getRestockReport(minimumQty) {
-		const sqlStatement = `SELECT * FROM inventory WHERE quantity <= ${minimumQty};`;
-		console.log(minimumQty);
+		const sqlStatement = `SELECT * FROM inventory WHERE quantity <= ${minimumQty} ORDER by quantity ASC;`;
 		try {
 			console.log("Starting restock report generation...");
 			const { rows } = await pool.query(sqlStatement);
-			console.log("Report generated successfully.");
 			return rows;
 		} catch (err) {
 			console.error(err);
@@ -752,10 +737,12 @@ class Data {
 
 		for (const item of inventoryItems) {
 			if (!sold.hasOwnProperty(item.inventory_id)) {
-				out.push({ inventory: item, percentage_sold: 0.0 });
+				const percentage_sold = 0.0;
+				const mergedItemObject = {...item, percentage_sold};
+				out.push(mergedItemObject);
 			}
 		}
-
+		console.log(out);
 		return out;
 	}
 	// TODO: Rest of phase 4 functions, XZ etc.
