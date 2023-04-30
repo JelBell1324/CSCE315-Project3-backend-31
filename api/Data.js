@@ -659,19 +659,23 @@ class Data {
 	*/
 
 	async getSalesReport(sDate, eDate) {
-		console.log("startDate: " + sDate);
-		console.log("endDate: " + eDate);
 		const sqlStatement = `
-			SELECT menu_id, SUM(quantity) AS total_qty 
-			FROM menu_to_order 
-			WHERE order_id IN (
+			SELECT m.menu_id, m.name, SUM(mto.quantity) AS total_qty 
+			FROM menu_to_order mto
+			INNER JOIN menu m ON m.menu_id = mto.menu_id
+			WHERE mto.order_id IN (
 				SELECT order_id FROM orders 
 				WHERE date >= '${sDate}' AND date <= '${eDate}'
 			)
-			GROUP BY menu_id;`;
-
-		const { rows } = await pool.query(sqlStatement);
-		return rows;
+			GROUP BY m.menu_id, m.name;`;
+		try {
+			console.log("Starting sales report generation...");
+			const { rows } = await pool.query(sqlStatement);
+			console.log(rows);
+			return rows;
+		} catch (err) {
+			console.error(err);
+		}
 	}
 
 	async getRestockReport(minimumQty) {
