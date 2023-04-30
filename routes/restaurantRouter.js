@@ -30,8 +30,10 @@ restaurantRouter.get("/excessreport", async (req, res) => {
 });
 
 restaurantRouter.get("/salesreport", async (req, res) => {
+	const sDate = req.query.sDate;
+	const eDate = req.query.eDate;
 	try {
-		res.send(await Database.getSalesReport());
+		res.send(await Database.getSalesReport(sDate, eDate));
 	} catch (err) {
 		res.status(500).json({ message: err.message });
 	}
