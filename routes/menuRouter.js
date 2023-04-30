@@ -61,4 +61,16 @@ menuRouter.post("/add", async (req, res) => {
 	}
 });
 
+menuRouter.post("/edit/price", async (req, res) => {
+	try {
+		const name = req.body.name;
+		const newPrice = req.body.newPrice;
+		res.send(
+			await Database.updateMenuPriceByName(name, newPrice)
+		);
+	} catch (err) {
+		res.status(500).json({ message: err.message });
+	}
+}); 
+
 export default menuRouter;
