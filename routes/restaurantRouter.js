@@ -12,9 +12,17 @@ restaurantRouter.get("/", async (req, res) => {
 
 restaurantRouter.get("/restockreport", async (req, res) => {
 	const minimumQty = req.query.minimumQty;
-	console.log(minimumQty);
 	try {
 		res.send(await Database.getRestockReport(minimumQty));
+	} catch (err) {
+		res.status(500).json({ message: err.message });
+	}
+});
+
+restaurantRouter.get("/excessreport", async (req, res) => {
+	const timestamp = req.query.timestamp;
+	try {
+		res.send(await Database.getExcessReport(timestamp));
 	} catch (err) {
 		res.status(500).json({ message: err.message });
 	}
