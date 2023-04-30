@@ -14,6 +14,7 @@ restaurantRouter.get("/restockreport", async (req, res) => {
 	const minimumQty = req.query.minimumQty;
 	try {
 		res.send(await Database.getRestockReport(minimumQty));
+		console.log("Restock Report generated successfully");
 	} catch (err) {
 		res.status(500).json({ message: err.message });
 	}
@@ -34,6 +35,7 @@ restaurantRouter.get("/salesreport", async (req, res) => {
 	const eDate = req.query.eDate;
 	try {
 		res.send(await Database.getSalesReport(sDate, eDate));
+		console.log("Sales Report generated successfully");
 	} catch (err) {
 		res.status(500).json({ message: err.message });
 	}
@@ -42,6 +44,7 @@ restaurantRouter.get("/salesreport", async (req, res) => {
 restaurantRouter.get("/xreport", async (req, res) => {
 	try {
 		res.send(await Database.getXReport(1));
+		console.log("X Report generated successfully");
 	} catch (err) {
 		res.status(500).json({ message: err.message });
 	}
@@ -50,6 +53,7 @@ restaurantRouter.get("/xreport", async (req, res) => {
 restaurantRouter.get("/zreport", async (req, res) => {
 	try {
 		res.send(await Database.getZReport(1));
+		console.log("Z Report generated successfully");
 	} catch (err) {
 		res.status(500).json({ message: err.message });
 	}

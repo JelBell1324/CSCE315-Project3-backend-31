@@ -659,6 +659,8 @@ class Data {
 	*/
 
 	async getSalesReport(sDate, eDate) {
+		console.log("startDate: " + sDate);
+		console.log("endDate: " + eDate);
 		const sqlStatement = `
 			SELECT menu_id, SUM(quantity) AS total_qty 
 			FROM menu_to_order 
