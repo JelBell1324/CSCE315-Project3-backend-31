@@ -9,7 +9,6 @@ orderRouter.post("/makeorder", async (req, res) => {
 		const customer_id = req.body.customer_id;
 		const staff_id = req.body.staff_id;
 		const menu_items = req.body.menu_items;
-		console.log(cost_total);
 		await Database.makeOrder(
 			cost_total,
 			timestamp,

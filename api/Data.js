@@ -73,7 +73,7 @@ class Data {
 			return null;
 		}
 	}
-
+	
 	async getMenuByName(name) {
 		const { rows } = await pool.query(
 			"SELECT * FROM menu WHERE name = $1;",
@@ -186,6 +186,11 @@ class Data {
 	}
 
 	async makeOrder(cost_total, timestamp, customer_id, staff_id, menu_items) {
+		// console.log("Data.js[line 189] cost_total:", cost_total);
+		// console.log("Data.js[line 190] timestamp:", timestamp);
+		// console.log("Data.js[line 191] customer_id:", customer_id);
+		// console.log("Data.js[line 192] staff_id:", staff_id);
+		// console.log("Data.js[line 193] menu_items:", menu_items);
 		try {
 			const { rows } = await pool.query(
 				"INSERT INTO orders (cost_total, date, customer_id, staff_id) VALUES ($1, $2, $3, $4) RETURNING order_id;",
@@ -193,32 +198,32 @@ class Data {
 			);
 			const order_id = rows[0].order_id;
 
-			console.log(menu_items);
-
 			for (const item of menu_items) {
+				// console.log("Data.js[line 202] item1:", item);
 				await pool.query(
 					"INSERT INTO menu_to_order (menu_id, order_id, quantity) VALUES ($1, $2, $3);",
-					[item.first, order_id, item.second]
+					[item[0], order_id, item[1]]
 				);
 			}
 
 			for (const item of menu_items) {
+				// console.log("Data.js[line 210] item2:", item);
 				const { rows: inventoryItems } = await pool.query(
 					"SELECT * FROM inventory_to_menu WHERE menu_id = $1;",
-					[item.first]
+					[item[0]]
 				);
 
 				for (const inventoryItem of inventoryItems) {
 					await pool.query(
 						"UPDATE inventory SET quantity = quantity - $1 WHERE inventory_id = $2;",
 						[
-							inventoryItem.quantity * item.second,
+							inventoryItem.quantity * item[1],
 							inventoryItem.inventory_id,
 						]
 					);
 				}
 			}
-
+			console.log("Order " + order_id + " Created Successfully.")
 			return order_id;
 		} catch (error) {
 			console.error("Error while creating order:", error);
