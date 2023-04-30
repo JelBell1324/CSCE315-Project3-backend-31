@@ -33,7 +33,7 @@ authRouter.post("/google-login", async (req, res) => {
 			);
 		}
 
-		res.json({ message: "Logged in successfully.", user: user.rows[0] });
+		res.json({ message: 69, user: user.rows[0] });
 	} catch (err) {
 		res.status(500).json({ message: err.message });
 	}
