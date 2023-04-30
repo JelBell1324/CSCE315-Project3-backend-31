@@ -93,7 +93,9 @@ class Data {
 	}
 
 	async getAllMenuItems() {
-		const { rows } = await pool.query("SELECT * FROM menu ORDER BY menu_id;");
+		const { rows } = await pool.query(
+			"SELECT * FROM menu ORDER BY menu_id;"
+		);
 		return rows;
 	}
 
@@ -265,13 +267,24 @@ class Data {
 	 * @return {Array} - An array of objects representing each inventory item and its quantity
 	 */
 	async parseInventoryItems(inventoryItemsString) {
-		let inventoryItems = itemIngredients.split("\n").map((line) => {
-			const [ingredientName, quantity] = line.split(" | ");
-			return [ingredientName.trim(), quantity.trim()];
-		});
+		let inventoryItems = [];
+
+		let items = inventoryItemsString.split("\n");
+		for (let item of items) {
+			let parts = item.trim().split("|");
+			let name = parts[0].trim();
+			let quantity = parseInt(parts[1].trim());
+
+			let inventoryId = (await this.getInventoryByName(name))
+				.inventory_id;
+			inventoryItems.push({
+				inventoryId: inventoryId,
+				quantity: quantity,
+			});
+		}
+
 		return inventoryItems;
 	}
-
 	/**
 	 * Adds a menu item and make all necessary changes to database and
 	 * - adds new menu entry into menu table
@@ -738,7 +751,7 @@ class Data {
 		for (const item of inventoryItems) {
 			if (!sold.hasOwnProperty(item.inventory_id)) {
 				const percentage_sold = 0.0;
-				const mergedItemObject = {...item, percentage_sold};
+				const mergedItemObject = { ...item, percentage_sold };
 				out.push(mergedItemObject);
 			}
 		}

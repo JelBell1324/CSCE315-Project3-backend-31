@@ -52,7 +52,6 @@ menuRouter.post("/add", async (req, res) => {
 		const price = req.body.price;
 		const type = req.body.type;
 		const inventory_items = req.body.inventory_items;
-		console.log(inventory_items);
 		res.send(
 			await Database.addMenuItem(name, price, type, inventory_items)
 		);
