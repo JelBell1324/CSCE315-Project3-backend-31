@@ -9,13 +9,14 @@ orderRouter.post("/makeorder", async (req, res) => {
 		const customer_id = req.body.customer_id;
 		const staff_id = req.body.staff_id;
 		const menu_items = req.body.menu_items;
-		await Database.makeOrder(
+		const order_id = await Database.makeOrder(
 			cost_total,
 			timestamp,
 			customer_id,
 			staff_id,
 			menu_items
 		);
+		res.json({ order_id });
 	} catch (err) {
 		res.status(500).json({ message: err.message });
 	}
