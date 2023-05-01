@@ -26,14 +26,28 @@ authRouter.post("/google-login", async (req, res) => {
 		]);
 
 		if (user.rowCount === 0) {
-			// Create a new user with Google user information
-			user = await pool.query(
-				"INSERT INTO staff (restaurant_id, is_manager, name, username, email) VALUES ($1, $2, $3, $4, $5) RETURNING *",
-				[1, false, payload.name, payload.name, googleEmail] // You may want to adjust these values based on your application requirements
-			);
+			// respond with error
+			res.json({ message: 420, user: user.rows[0] });
 		}
 
 		res.json({ message: 69, user: user.rows[0] });
+	} catch (err) {
+		res.status(500).json({ message: err.message });
+	}
+});
+
+authRouter.post("/add", async (req, res) => {
+	try {
+		const restaurant_id = req.body.restaurant_id;
+		const is_manager = req.body.is_manager;
+		const name = req.body.name;
+		const email = req.body.email;
+		const user = await pool.query(
+			"INSERT INTO staff (restaurant_id, is_manager, name, email) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+			[restaurant_id, is_manager, name, email]
+		);
+
+		res.status(201).json(user.rows[0]);
 	} catch (err) {
 		res.status(500).json({ message: err.message });
 	}
