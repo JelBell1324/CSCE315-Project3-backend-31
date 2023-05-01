@@ -42,8 +42,9 @@ authRouter.post("/add", async (req, res) => {
 		const is_manager = req.body.is_manager;
 		const name = req.body.name;
 		const email = req.body.email;
+
 		const user = await pool.query(
-			"INSERT INTO staff (restaurant_id, is_manager, name, email) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+			"INSERT INTO staff (restaurant_id, is_manager, name, email) VALUES ($1, $2, $3, $4) RETURNING *",
 			[restaurant_id, is_manager, name, email]
 		);
 
