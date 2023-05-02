@@ -28,7 +28,7 @@ inventoryRouter.get("/name/:name", async (req, res) => {
 	}
 });
 
-inventoryRouter.post("/update/quantity", async (req, res) => {
+inventoryRouter.post("/edit/quantity", async (req, res) => {
 	try {
 		const name = req.body.name;
 		const quantity = req.body.quantity;
