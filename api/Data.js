@@ -79,7 +79,7 @@ class Data {
 			"SELECT * FROM menu WHERE name = $1;",
 			[name]
 		);
-		const inventory_items = await getInventoryItemsByMenuId(
+		const inventory_items = await this.getInventoryItemsByMenuId(
 			rows[0].menu_id
 		);
 		const menu = {
