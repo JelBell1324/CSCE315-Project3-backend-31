@@ -146,6 +146,11 @@ class Data {
 		return rows;
 	}
 
+	/**
+	 * Returns an array of menu items that correspond to a given inventory ID.
+	 * @param inventory_id An integer representing the inventory ID.
+	 * @return An array of menu items.
+	 */
 	async getMenuItemsByInventoryId(inventory_id) {
 		const { rows } = await pool.query(
 			"SELECT * FROM inventory_to_menu WHERE inventory_id = $1;",
@@ -159,6 +164,11 @@ class Data {
 		return menuItems;
 	}
 
+	/**
+	 * Returns an array of orders that correspond to a given menu ID.
+	 * @param menu_id An integer representing the menu ID.
+	 * @return An array of orders.
+	 */
 	async getOrdersByMenuId(menu_id) {
 		const { rows } = await pool.query(
 			"SELECT * FROM menu_to_order WHERE menu_id = $1;",
@@ -734,6 +744,11 @@ class Data {
 		}
 	}
 
+	/**
+	 * Generates an excess inventory report for items that have sold less than 10% of their inventory since a given timestamp.
+	 * @param timestamp A timestamp representing the time to check sales since.
+	 * @return An array of inventory items that have sold less than 10% of their inventory since the given timestamp.
+	 */
 	async getExcessReport(timestamp) {
 		const inventorySalesPercentages =
 			await this.getInventorySalesSinceTimestamp(timestamp);
@@ -764,7 +779,6 @@ class Data {
 		console.log(out);
 		return out;
 	}
-	// TODO: Rest of phase 4 functions, XZ etc.
 
 	/**
 	 * Gets total sales for that day
@@ -829,6 +843,12 @@ class Data {
 		return totalSales;
 	}
 
+
+	/**
+	 * Generates an X report for a given restaurant ID, either for sales since the last Z report or for sales for the current day.
+	 * @param restaurant_id An integer representing the restaurant ID.
+	 * @return An object representing the X report.
+	 */
 	async getXReport(restaurant_id) {
 		let report;
 
@@ -879,6 +899,11 @@ class Data {
 		return report;
 	}
 
+	/**
+	 * Generates a Z report for a given restaurant ID and saves it to the database.
+	 * @param restaurant_id An integer representing the restaurant ID.
+	 * @return An object representing the Z report.
+	 */
 	async getZReport(restaurant_id) {
 		const totalSales = await this.getTotalSalesForToday(restaurant_id);
 		let report_id = -1;
