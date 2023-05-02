@@ -1,6 +1,13 @@
 import { pool } from "../server.js";
 
 class Data {
+
+
+	/**
+	Returns an order object given an order id
+	@param {number} order_id - The id of the order
+	@returns {Object} The order object
+	*/
 	async getOrder(order_id) {
 		const { rows } = await pool.query(
 			"SELECT * FROM orders WHERE order_id = $1;",
@@ -9,6 +16,12 @@ class Data {
 		return rows[0];
 	}
 
+
+	/**
+	Returns an array of all orders associated with a given customer id
+	@param {number} customer_id - The id of the customer
+	@returns {Array} An array of order objects
+	*/
 	async getOrdersByCustomerId(customer_id) {
 		const { rows } = await pool.query(
 			"SELECT * FROM orders WHERE customer_id = $1;",
@@ -17,6 +30,11 @@ class Data {
 		return rows;
 	}
 
+	/**
+	Retrieves all orders placed on a specific date.
+	@param {string} date - The date in 'YYYY-MM-DD' format to retrieve orders for.
+	@returns {Promise<Array>} - A promise that resolves to an array of orders placed on the given date, or an empty array if no orders are found.
+	*/
 	async getOrdersByDate(date) {
 		const { rows } = await pool.query(
 			"SELECT * FROM orders WHERE date = $1;",
@@ -25,6 +43,11 @@ class Data {
 		return rows;
 	}
 
+	/**
+	Returns an array of all orders placed on or after a given date
+	@param {string} date - The date in string format "YYYY-MM-DD"
+	@returns {Array} An array of order objects
+	*/
 	async getOrdersSinceDate(date) {
 		const { rows } = await pool.query(
 			"SELECT * FROM orders WHERE date >= $1;",
@@ -33,11 +56,19 @@ class Data {
 		return rows;
 	}
 
+	/**
+	Returns an array of all orders
+	@returns {Array} An array of order objects
+	*/
 	async getAllOrders() {
 		const { rows } = await pool.query("SELECT * FROM orders;");
 		return rows;
 	}
 
+	/**
+	Returns an array of the 50 most recent orders
+	@returns {Array} An array of order objects
+	*/
 	async getRecentOrders() {
 		const { rows } = await pool.query(
 			"SELECT * FROM orders ORDER BY order_id DESC LIMIT 50;"
@@ -45,6 +76,12 @@ class Data {
 		return rows;
 	}
 
+
+	/**
+	Returns a menu object given a menu id
+	@param {number} menu_id - The id of the menu item
+	@returns {Object} The menu object
+	*/
 	async getMenu(menu_id) {
 		const { rows } = await pool.query(
 			"SELECT * FROM menu WHERE menu_id = $1;",
@@ -53,6 +90,11 @@ class Data {
 		return rows[0];
 	}
 
+	/**
+	Returns the name of a menu item given a menu id
+	@param {number} menu_id - The id of the menu item
+	@returns {string} The name of the menu item
+	*/
 	async getMenuName(menu_id) {
 		const { rows } = await pool.query(
 			"SELECT * FROM menu WHERE menu_id = $1;",
@@ -61,6 +103,11 @@ class Data {
 		return rows[0].name;
 	}
 
+	/**
+	Returns an array of inventory items associated with a given menu id
+	@param {number} menu_id - The id of the menu item
+	@returns {Array} An array of inventory items
+	*/
 	async getInventoryItemsByMenuId(menu_id) {
 		try {
 			const { rows } = await pool.query(
@@ -74,6 +121,12 @@ class Data {
 		}
 	}
 	
+
+	/**
+	Returns a menu object given a menu name
+	@param {string} name - The name of the menu item
+	@returns {Object} The menu object
+	*/
 	async getMenuByName(name) {
 		const { rows } = await pool.query(
 			"SELECT * FROM menu WHERE name = $1;",
@@ -92,6 +145,10 @@ class Data {
 		return menu;
 	}
 
+	/**
+	Returns an array of all menu items
+	@returns {Array} An array of menu objects
+	*/
 	async getAllMenuItems() {
 		const { rows } = await pool.query(
 			"SELECT * FROM menu ORDER BY menu_id;"
@@ -99,6 +156,11 @@ class Data {
 		return rows;
 	}
 
+	/**
+	Returns an array of all menu items of a given food type
+	@param {string} foodType - The type of food
+	@returns {Array} An array of menu objects
+	*/
 	async getMenuByType(foodType) {
 		const { rows } = await pool.query(
 			"SELECT * FROM menu WHERE type = $1;",
@@ -121,6 +183,11 @@ class Data {
 		return menuItems;
 	}
 
+	/**
+	Returns an array of inventory items associated with a given inventory id
+	@param {number} inventory_id - The id of the inventory item
+	@returns {Array} An array of inventory items
+	*/
 	async getInventory(inventory_id) {
 		const { rows } = await pool.query(
 			"SELECT * FROM inventory WHERE inventory_id = " + inventory_id + ";"
@@ -128,6 +195,11 @@ class Data {
 		return rows;
 	}
 
+	/**
+	Returns an inventory item object given an inventory name
+	@param {string} name - The name of the inventory item
+	@returns {Object} The inventory item object
+	*/
 	async getInventoryByName(name) {
 		const { rows } = await pool.query(
 			"SELECT * FROM inventory WHERE name = $1;",
@@ -136,11 +208,20 @@ class Data {
 		return rows[0];
 	}
 
+	/**
+	Returns an array of all inventory items
+	@returns {Array} An array of inventory item objects
+	*/
 	async getAllInventoryItems() {
 		const { rows } = await pool.query("SELECT * FROM inventory;");
 		return rows;
 	}
 
+
+	/**
+	 * Retrieves all rows from the 'restaurant' table in the database.
+	 * @return An array of objects representing each row in the 'restaurant' table.
+	 */
 	async getRestaurant() {
 		const { rows } = await pool.query("SELECT * FROM restaurant;");
 		return rows;
@@ -182,6 +263,11 @@ class Data {
 		return orderItems;
 	}
 
+	/**
+	 * Retrieves an array of menu items associated with a given order ID.
+	 * @param order_id The ID of the order to retrieve menu items for.
+	 * @return An array of objects, where each object contains a menu item and the quantity of that item ordered for the given order ID.
+	 */
 	async getMenuItemsByOrderId(order_id) {
 		const { rows } = await pool.query(
 			"SELECT * FROM menu_to_order WHERE order_id = $1;",
@@ -195,6 +281,16 @@ class Data {
 		return menuItems;
 	}
 
+
+	/**
+	 * Creates a new order in the database with the given information, and updates inventory quantities based on the menu items in the order.
+	 * @param cost_total The total cost of the order.
+	 * @param timestamp The timestamp of when the order was made.
+	 * @param customer_id The ID of the customer placing the order.
+	 * @param staff_id The ID of the staff member who took the order.
+	 * @param menu_items An array of arrays, where each inner array contains a menu item ID and the quantity ordered for that item.
+	 * @return The ID of the newly created order if successful, or -1 if there was an error.
+	 */
 	async makeOrder(cost_total, timestamp, customer_id, staff_id, menu_items) {
 		// console.log("Data.js[line 189] cost_total:", cost_total);
 		// console.log("Data.js[line 190] timestamp:", timestamp);
@@ -673,6 +769,12 @@ class Data {
 	***************************************************
 	*/
 
+	/**
+	 * Retrieves a report of menu items sold within a given date range.
+	 * @param sDate The start date of the date range to check sales for, in the format 'YYYY-MM-DD'.
+	 * @param eDate The end date of the date range to check sales for, in the format 'YYYY-MM-DD'.
+	 * @return An array of objects representing menu items sold within the given date range, sorted in descending order by quantity.
+	 */
 	async getSalesReport(sDate, eDate) {
 		const sqlStatement = `
 			SELECT m.menu_id, m.name, SUM(mto.quantity) AS total_qty 
@@ -694,6 +796,11 @@ class Data {
 		}
 	}
 
+	/**
+	 * Retrieves a list of inventory items with a quantity below a given threshold, sorted in ascending order by quantity.
+	 * @param minimumQty The minimum quantity threshold for items to include in the restock report.
+	 * @return An array of objects representing inventory items that need to be restocked.
+	 */
 	async getRestockReport(minimumQty) {
 		const sqlStatement = `SELECT * FROM inventory WHERE quantity <= ${minimumQty} ORDER by quantity ASC;`;
 		try {
@@ -705,6 +812,11 @@ class Data {
 		}
 	}
 
+	/**
+	 * Retrieves the sales percentages for each inventory item since a given timestamp.
+	 * @param timestamp A timestamp representing the time to check sales since.
+	 * @return An array of objects representing inventory items and their sales percentages since the given timestamp.
+	 */
 	async getInventorySalesSinceTimestamp(timestamp) {
 		if (!(timestamp instanceof Date)) {
 			timestamp = new Date(timestamp);
