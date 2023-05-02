@@ -358,6 +358,7 @@ class Data {
 	 * @return a boolean value for success (true) or failure (false)
 	 */
 	async removeMenuItem(menu_id) {
+		console.log("Attempting to delete", menu_id, "from Menu");
 		const sqlStatement1 =
 			"DELETE FROM inventory_to_menu WHERE menu_id = $1;";
 
@@ -390,7 +391,7 @@ class Data {
 			console.error(`${e.constructor.name}: ${e.message}`);
 			return false; // ERROR
 		}
-
+		console.log("Deleted", menu_id, "from Menu");
 		return true;
 	}
 

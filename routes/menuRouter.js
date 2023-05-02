@@ -60,6 +60,17 @@ menuRouter.post("/add", async (req, res) => {
 	}
 });
 
+menuRouter.post("/remove", async (req, res) => {
+	try {
+		const menu_id = req.body.menu_id;
+		res.send(
+			await Database.removeMenuItem(menu_id)
+		);
+	} catch (err) {
+		res.status(500).json({ message: err.message });
+	}
+});
+
 menuRouter.post("/edit/price", async (req, res) => {
 	try {
 		const name = req.body.name;
