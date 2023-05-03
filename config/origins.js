@@ -1,5 +1,6 @@
 const allowedOrigins = [
 	"https://csce-315-project3-31-final.vercel.app",
+	"https://csce-315-project3-31-final-jelbell1324.vercel.app/",
 	"https://csce-315-project3-31-final-git-main-jelbell1324.vercel.app",
 	"https://csce-315-project3-31-final-agy9v1zkn-jelbell1324.vercel.app",
 ];
