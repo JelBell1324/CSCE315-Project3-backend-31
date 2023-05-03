@@ -2,6 +2,9 @@ import express from "express";
 import { Database } from "../server.js";
 const menuRouter = express.Router();
 
+/**
+ * Gets array of all menu items
+ */
 menuRouter.get("/", async (req, res) => {
 	try {
 		res.send(await Database.getAllMenuItems());
@@ -10,6 +13,9 @@ menuRouter.get("/", async (req, res) => {
 	}
 });
 
+/**
+ * Gets menu item by menu id
+ */
 menuRouter.get("/:menu_id", async (req, res) => {
 	const { menu_id } = req.params;
 	try {
@@ -19,6 +25,9 @@ menuRouter.get("/:menu_id", async (req, res) => {
 	}
 });
 
+/**
+ * Gets the menu item by order_id
+ */
 menuRouter.get("/order/:order_id", async (req, res) => {
 	const { order_id } = req.params;
 	try {
@@ -28,6 +37,9 @@ menuRouter.get("/order/:order_id", async (req, res) => {
 	}
 });
 
+/**
+ * Gets menu item by menu item name
+ */
 menuRouter.get("/name/:name", async (req, res) => {
 	const { name } = req.params;
 	try {
@@ -37,6 +49,9 @@ menuRouter.get("/name/:name", async (req, res) => {
 	}
 });
 
+/**
+ * Gets array of menu items by menu item type
+ */
 menuRouter.get("/type/:type", async (req, res) => {
 	const { type } = req.params;
 	try {
@@ -46,6 +61,9 @@ menuRouter.get("/type/:type", async (req, res) => {
 	}
 });
 
+/**
+ * Adds menu item to menu
+ */
 menuRouter.post("/add", async (req, res) => {
 	try {
 		const name = req.body.name;
@@ -60,6 +78,9 @@ menuRouter.post("/add", async (req, res) => {
 	}
 });
 
+/**
+ * Removes menu item from menu
+ */
 menuRouter.post("/remove", async (req, res) => {
 	try {
 		const menu_id = req.body.menu_id;
@@ -71,6 +92,9 @@ menuRouter.post("/remove", async (req, res) => {
 	}
 });
 
+/**
+ * Edits the price of menu item by name
+ */
 menuRouter.post("/edit/price", async (req, res) => {
 	try {
 		const name = req.body.name;

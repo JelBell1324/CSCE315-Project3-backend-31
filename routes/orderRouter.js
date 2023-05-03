@@ -2,6 +2,9 @@ import express from "express";
 import { Database } from "../server.js";
 const orderRouter = express.Router();
 
+/**
+ * Makes order
+ */
 orderRouter.post("/makeorder", async (req, res) => {
 	try {
 		const cost_total = req.body.cost_total;
@@ -22,10 +25,9 @@ orderRouter.post("/makeorder", async (req, res) => {
 	}
 });
 
-// Remove order
-// orderRouter.delete("/delete/:order_id");
-
-// GET all orders
+/**
+ * Gets array of all orders
+ */
 orderRouter.get("/", async (req, res) => {
 	try {
 		res.send(await Database.getAllOrders());
@@ -34,7 +36,9 @@ orderRouter.get("/", async (req, res) => {
 	}
 });
 
-// GET recent orders
+/**
+ * Gets array of 50 most recent orders
+ */
 orderRouter.get("/recent", async (req, res) => {
 	try {
 		res.send(await Database.getRecentOrders());
@@ -43,7 +47,9 @@ orderRouter.get("/recent", async (req, res) => {
 	}
 });
 
-// GET order by order_id
+/**
+ * Gets order by order id
+ */
 orderRouter.get("/:order_id", async (req, res) => {
 	const { order_id } = req.params;
 	try {
@@ -53,7 +59,9 @@ orderRouter.get("/:order_id", async (req, res) => {
 	}
 });
 
-// GET orders by customer_id
+/**
+ * Gets array of orders by customer id
+ */
 orderRouter.get("/customer/:customer_id", async (req, res) => {
 	const { customer_id } = req.params;
 	try {
@@ -63,7 +71,9 @@ orderRouter.get("/customer/:customer_id", async (req, res) => {
 	}
 });
 
-// GET orders by date
+/**
+ * Gets array of orders on given date
+ */
 orderRouter.get("/date/:date", async (req, res) => {
 	const { date } = req.params;
 	try {
@@ -73,7 +83,9 @@ orderRouter.get("/date/:date", async (req, res) => {
 	}
 });
 
-// GET orders since date
+/**
+ * Gets array of orders since a given date
+ */
 orderRouter.get("/since/:date", async (req, res) => {
 	const { date } = req.params;
 	try {

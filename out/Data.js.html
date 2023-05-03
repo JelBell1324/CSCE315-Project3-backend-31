@@ -1,4 +1,32 @@
-import { pool } from "../server.js";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: Data.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: Data.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { pool } from "../server.js";
 
 /**
  * Database management class for communicating with PostgreSQL backend database server.
@@ -7,7 +35,7 @@ class Data {
 	/**
 	 * Gets order with order_id
 	 * @param order_id {number}
-	 * @return order {Object}
+	 * @return order
 	 */
 	async getOrder(order_id) {
 		const { rows } = await pool.query(
@@ -20,7 +48,7 @@ class Data {
 	/**
 	 * Gets list of orders with customer id
 	 * @param customer_id {number}
-	 * @return order {array}
+	 * @return order array
 	 */
 	async getOrdersByCustomerId(customer_id) {
 		const { rows } = await pool.query(
@@ -33,7 +61,7 @@ class Data {
 	/**
 	 * Gets list of orders with date
 	 * @param date {date}
-	 * @return order {array}
+	 * @return order array
 	 */
 	async getOrdersByDate(date) {
 		const { rows } = await pool.query(
@@ -46,7 +74,7 @@ class Data {
 	/**
 	 * Gets order since date
 	 * @param date {date}
-	 * @return order {object}
+	 * @return order
 	 */
 	async getOrdersSinceDate(date) {
 		const { rows } = await pool.query(
@@ -58,7 +86,7 @@ class Data {
 
 	/**
 	 * Gets all orders
-	 * @return order {array}
+	 * @return order array
 	 */
 	async getAllOrders() {
 		const { rows } = await pool.query("SELECT * FROM orders;");
@@ -68,7 +96,7 @@ class Data {
 	/**
 	 * Gets list of 50 most recent order
 	 * @param date {date}
-	 * @return order {array}
+	 * @return order array
 	 */
 	async getRecentOrders() {
 		const { rows } = await pool.query(
@@ -80,7 +108,7 @@ class Data {
 	/**
 	 * Gets menu item with menu id
 	 * @param menu_id {number}
-	 * @return menu_item {object}
+	 * @return menu item
 	 */
 	async getMenu(menu_id) {
 		const { rows } = await pool.query(
@@ -93,7 +121,7 @@ class Data {
 	/**
 	 * Gets menu item name with menu id
 	 * @param menu_id {number}
-	 * @return name {string}
+	 * @return menu item name
 	 */
 	async getMenuName(menu_id) {
 		const { rows } = await pool.query(
@@ -431,7 +459,7 @@ class Data {
 		let inventory = await this.parseInventoryItems(inventory_items);
 
 		// Make inventory_to_menu Entry(ies)
-		for (let i = 0; i < inventory.length; i++) {
+		for (let i = 0; i &lt; inventory.length; i++) {
 			const sqlStatement2 =
 				"INSERT INTO inventory_to_menu (inventory_id, menu_id, quantity) VALUES ($1, $2, $3);";
 			try {
@@ -554,7 +582,7 @@ class Data {
 		}
 		let original_quantity = 0;
 
-		for (let i = 0; i < original_order.menu_items.length; i++) {
+		for (let i = 0; i &lt; original_order.menu_items.length; i++) {
 			const menu_item = original_order.menu_items[i];
 			if (menu_item.first === menu_id) {
 				original_quantity = menu_item.second;
@@ -606,7 +634,7 @@ class Data {
 		}
 		let present = false;
 
-		for (let i = 0; i < original_order.menu_items.length; i++) {
+		for (let i = 0; i &lt; original_order.menu_items.length; i++) {
 			const menu_item = original_order.menu_items[i];
 			if (menu_item.first === menu_id) {
 				present = true;
@@ -782,7 +810,7 @@ class Data {
 			INNER JOIN menu m ON m.menu_id = mto.menu_id
 			WHERE mto.order_id IN (
 				SELECT order_id FROM orders 
-				WHERE date >= '${sDate}' AND date <= '${eDate}'
+				WHERE date >= '${sDate}' AND date &lt;= '${eDate}'
 			)
 			GROUP BY m.menu_id, m.name
 			ORDER BY total_qty DESC;`;
@@ -801,7 +829,7 @@ class Data {
 	 * @param minimumQty {number}
 	 */
 	async getRestockReport(minimumQty) {
-		const sqlStatement = `SELECT * FROM inventory WHERE quantity <= ${minimumQty} ORDER by quantity ASC;`;
+		const sqlStatement = `SELECT * FROM inventory WHERE quantity &lt;= ${minimumQty} ORDER by quantity ASC;`;
 		try {
 			console.log("Starting restock report generation...");
 			const { rows } = await pool.query(sqlStatement);
@@ -871,7 +899,7 @@ class Data {
 		for (const percentage of inventorySalesPercentages) {
 			const key = percentage.inventory_id;
 			sold[key] = true;
-			if (percentage.percentage_sold < 10) {
+			if (percentage.percentage_sold &lt; 10) {
 				out.push(percentage);
 			}
 		}
@@ -907,7 +935,7 @@ class Data {
 			restaurant_id +
 			" " +
 			"AND o.date >= DATE_TRUNC('day', CURRENT_TIMESTAMP) " +
-			"AND o.date < DATE_TRUNC('day', CURRENT_TIMESTAMP) + INTERVAL '1 day';";
+			"AND o.date &lt; DATE_TRUNC('day', CURRENT_TIMESTAMP) + INTERVAL '1 day';";
 
 		try {
 			const { rows } = await pool.query(sql);
@@ -935,7 +963,7 @@ class Data {
 			"JOIN staff s ON o.staff_id = s.staff_id " +
 			"WHERE (o.date > (SELECT MAX(z.report_date) FROM z_reports z WHERE z.restaurant_id = " +
 			restaurant_id +
-			" ) AND o.date < CURRENT_TIMESTAMP " +
+			" ) AND o.date &lt; CURRENT_TIMESTAMP " +
 			"AND s.restaurant_id = " +
 			restaurant_id +
 			");";
@@ -1050,3 +1078,26 @@ class Data {
 }
 
 export default Data;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Data.html">Data</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Tue May 02 2023 19:40:07 GMT-0500 (Central Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

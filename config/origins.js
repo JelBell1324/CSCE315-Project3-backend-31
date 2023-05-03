@@ -1,5 +1,8 @@
 const allowedOrigins = "http://localhost:3000/";
 
+/**
+ * Configures cors options
+ */
 const corsOptions = {
 	origin: function (origin, callback) {
 		if (allowedOrigins.indexOf(origin) !== -1) {

@@ -2,6 +2,9 @@ import express from "express";
 import { Database } from "../server.js";
 const restaurantRouter = express.Router();
 
+/**
+ * Gets all restaurants
+ */
 restaurantRouter.get("/", async (req, res) => {
 	try {
 		res.send(await Database.getRestaurant());
@@ -10,6 +13,9 @@ restaurantRouter.get("/", async (req, res) => {
 	}
 });
 
+/**
+ * Gets restock report
+ */
 restaurantRouter.get("/restockreport", async (req, res) => {
 	const minimumQty = req.query.minimumQty;
 	try {
@@ -20,6 +26,9 @@ restaurantRouter.get("/restockreport", async (req, res) => {
 	}
 });
 
+/**
+ * Gets excess report
+ */
 restaurantRouter.get("/excessreport", async (req, res) => {
 	const timestamp = req.query.timestamp;
 	try {
@@ -30,6 +39,9 @@ restaurantRouter.get("/excessreport", async (req, res) => {
 	}
 });
 
+/**
+ * Gets sales report
+ */
 restaurantRouter.get("/salesreport", async (req, res) => {
 	const sDate = req.query.sDate;
 	const eDate = req.query.eDate;
@@ -41,6 +53,9 @@ restaurantRouter.get("/salesreport", async (req, res) => {
 	}
 });
 
+/**
+ * Gets x report
+ */
 restaurantRouter.get("/xreport", async (req, res) => {
 	try {
 		res.send(await Database.getXReport(1));
@@ -50,6 +65,9 @@ restaurantRouter.get("/xreport", async (req, res) => {
 	}
 });
 
+/**
+ * Gets z report
+ */
 restaurantRouter.get("/zreport", async (req, res) => {
 	try {
 		res.send(await Database.getZReport(1));
