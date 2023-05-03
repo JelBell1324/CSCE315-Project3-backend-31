@@ -1,6 +1,5 @@
 import express from "express";
 import { pool } from "../server.js";
-import bcrypt from "bcrypt";
 const authRouter = express.Router();
 
 import { OAuth2Client } from "google-auth-library";

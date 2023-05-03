@@ -5,11 +5,13 @@ import menuRouter from "./routes/menuRouter.js";
 import inventoryRouter from "./routes/inventoryRouter.js";
 import restaurantRouter from "./routes/restaurantRouter.js";
 import authRouter from "./routes/authRouter.js";
+import staffRouter from "./routes/staffRouter.js";
 import postgres from "pg";
 import dotenv from "dotenv";
 import Data from "./api/Data.js";
 import corsOptions from "./config/origins.js";
 import helmet from "helmet";
+
 const Database = new Data();
 
 dotenv.config();
@@ -53,6 +55,7 @@ app.use("/menu", menuRouter);
 app.use("/inventory", inventoryRouter);
 app.use("/restaurant", restaurantRouter);
 app.use("/auth", authRouter);
+app.use("/staff", staffRouter);
 
 app.listen(PORT, () => {
 	console.log(`Server is started on port ${PORT}`);
