@@ -1,4 +1,4 @@
-const allowedOrigins = "http://localhost:3000/";
+const allowedOrigins = "https://csce-315-project3-31-final.vercel.app/";
 
 /**
  * Configures cors options
