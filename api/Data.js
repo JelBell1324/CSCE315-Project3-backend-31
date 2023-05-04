@@ -66,13 +66,13 @@ class Data {
 	}
 
 	/**
-	 * Gets list of 50 most recent order
+	 * Gets list of 10 most recent order
 	 * @param date {date}
 	 * @return order {array}
 	 */
 	async getRecentOrders() {
 		const { rows } = await pool.query(
-			"SELECT * FROM orders ORDER BY order_id DESC LIMIT 50;"
+			"SELECT * FROM orders ORDER BY order_id DESC LIMIT 10;"
 		);
 		return rows;
 	}
